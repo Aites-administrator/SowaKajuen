@@ -174,6 +174,40 @@ Public Class ClsPrintingProcess
 
   End Function
 
+  ''' <summary>
+  ''' 印刷スレッドプロセス(伝票印刷 条件リスト指定)
+  ''' </summary>
+  ''' <param name="prmPreview">プレビュー設定</param>
+  ''' <param name="prmTableName">テーブル名</param>
+  ''' <param name="prmReportName">レポート名</param>
+  ''' <param name="prmWhereList">抽出条件リスト</param>
+  Public Overloads Sub PrintProcess(prmPreview As Integer, prmTableName As String, prmReportName As String, Optional ByRef prmWhereList As Dictionary(Of String, List(Of String)) = Nothing)
+    Dim tmpDt As New DataTable
+    Try
+      '対象データ取得
+      SqlServer.GetResult(tmpDt, SqlGetPrintData(prmWhereList))
+
+      '印刷処理
+      If Not AccessPrint(prmPreview, prmTableName, prmReportName, tmpDt) Then
+        Throw New Exception("印刷処理に失敗しました。")
+      End If
+
+      For Each tmpRow As DataRow In tmpDt.Rows
+        SqlServer.Execute(SqlUpdPrintFlg(tmpRow, prmWhereList))
+      Next
+    Catch ex As Exception
+      ComWriteErrLog(ex, False)
+    End Try
+
+  End Sub
+
+  ''' <summary>
+  ''' 印刷スレッドプロセス(伝票印刷 条件単体指定)
+  ''' </summary>
+  ''' <param name="prmPreview">プレビュー設定</param>
+  ''' <param name="prmTableName">テーブル名</param>
+  ''' <param name="prmReportName">レポート名</param>
+  ''' <param name="prmWhereList">抽出条件リスト</param>
   Public Overloads Sub PrintProcess(prmPreview As Integer, prmTableName As String, prmReportName As String, Optional ByRef prmWhereList As Dictionary(Of String, String) = Nothing)
     Dim tmpDt As New DataTable
     Try
@@ -197,6 +231,12 @@ Public Class ClsPrintingProcess
 
   End Sub
 
+  ''' <summary>
+  ''' 印刷スレッドプロセス(マスタバーコード印刷)
+  ''' </summary>
+  ''' <param name="prmPreview">プレビュー設定</param>
+  ''' <param name="prmTableName">テーブル名</param>
+  ''' <param name="prmReportName">レポート名</param>
   Public Overloads Sub PrintProcess(prmPreview As Integer, prmTableName As String, prmReportName As String)
     Dim tmpTantoDt As New DataTable
     Dim tmpTokuiDt As New DataTable
@@ -231,25 +271,7 @@ Public Class ClsPrintingProcess
 
   End Sub
 
-  Public Overloads Sub PrintProcess(prmPreview As Integer, prmTableName As String, prmReportName As String, Optional ByRef prmWhereList As Dictionary(Of String, List(Of String)) = Nothing)
-    Dim tmpDt As New DataTable
-    Try
-      '対象データ取得
-      SqlServer.GetResult(tmpDt, SqlGetPrintData(prmWhereList))
 
-      '印刷処理
-      If Not AccessPrint(prmPreview, prmTableName, prmReportName, tmpDt) Then
-        Throw New Exception("印刷処理に失敗しました。")
-      End If
-
-      For Each tmpRow As DataRow In tmpDt.Rows
-        SqlServer.Execute(SqlUpdPrintFlg(tmpRow, prmWhereList))
-      Next
-    Catch ex As Exception
-      ComWriteErrLog(ex, False)
-    End Try
-
-  End Sub
 
   Private Function AccessPrint(prmPreview As Integer, prmTableName As String, prmReportName As String, tmpDt As DataTable) As Boolean
     Dim rtn As Boolean = True

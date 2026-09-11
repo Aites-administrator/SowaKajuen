@@ -18,6 +18,11 @@ Public Class KeiryokiMasterOutputService
   ' 呼出コード(列2)と品名(列64)だけを画面データで置換する。
   Private Const ItemDefaultRow As String = "{0},,0,g,0,g,0,g,0,g,0,g,0,g,0,g,0,,,0,g,0,g,0,g,0,""{1}"",1,2,2,0,1,2,2,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,,,,,,,,,,0,g,0,g,0,0,g"
 
+  ''' <summary>
+  ''' 仕入先マスタデータを取得
+  ''' </summary>
+  ''' <param name="prmSqlServer">SQL Server接続オブジェクト</param>
+  ''' <returns>仕入先マスタのDataTable</returns>
   Public Function GetTokuisakiList(prmSqlServer As ClsSqlServer) As DataTable
     Dim raw As New DataTable()
     Dim sql As String = BuildTokuisakiSelectSql()
@@ -32,6 +37,11 @@ Public Class KeiryokiMasterOutputService
     Return rtn
   End Function
 
+  ''' <summary>
+  ''' 商品マスタデータを取得
+  ''' </summary>
+  ''' <param name="prmSqlServer">SQL Server接続オブジェクト</param>
+  ''' <returns>商品マスタのDataTable</returns>
   Public Function GetShohinList(prmSqlServer As ClsSqlServer) As DataTable
     Dim raw As New DataTable()
     Dim sql As String = BuildShohinSelectSql()
@@ -46,6 +56,11 @@ Public Class KeiryokiMasterOutputService
 
   End Function
 
+  ''' <summary>
+  ''' 担当者マスタデータを取得
+  ''' </summary>
+  ''' <param name="prmSqlServer">SQL Server接続オブジェクト</param>
+  ''' <returns>担当者マスタのDataTable</returns>
   Public Function GetTantoList(prmSqlServer As ClsSqlServer) As DataTable
     Dim raw As New DataTable()
     Dim sql As String = BuildTantoSelectSql()
@@ -61,6 +76,11 @@ Public Class KeiryokiMasterOutputService
 
   End Function
 
+  ''' <summary>
+  ''' 取得したDataTableから指定列の文字列DataTableを作成
+  ''' </summary>
+  ''' <param name="raw">元となるDataTable</param>
+  ''' <returns>指定列で作成した文字列型のDataTable</returns>
   Private Function CreateStringTable(raw As DataTable, columnNames() As String) As DataTable
     Dim result As New DataTable()
     Try
@@ -84,6 +104,12 @@ Public Class KeiryokiMasterOutputService
     Return result
   End Function
 
+  ''' <summary>
+  ''' 計量器マスタデータを取得
+  ''' </summary>
+  ''' <param name="prmSqlServer">SQL Server接続オブジェクト</param>
+  ''' <param name="Para_ScaleNumber">取得対象の計量器番号</param>
+  ''' <returns>計量器マスタのDataTable</returns>
   Public Function GetScaleList(prmSqlServer As ClsSqlServer, Para_ScaleNumber As String) As DataTable
     Dim dt As New DataTable()
     Dim sql As String = GetMstScaleSelectSql(Para_ScaleNumber)
@@ -96,6 +122,15 @@ Public Class KeiryokiMasterOutputService
     Return dt
   End Function
 
+  ''' <summary>
+  ''' 全計量器向けのマスタCSVを出力
+  ''' </summary>
+  ''' <param name="dtTokuisaki">仕入先マスタDataTable</param>
+  ''' <param name="dtShohin">商品マスタDataTable</param>
+  ''' <param name="dtTanto">担当者マスタDataTable</param>
+  ''' <param name="dtScale">計量器マスタDataTable</param>
+  ''' <param name="basePath">CSV出力先の基準フォルダ</param>
+  ''' <param name="prmSqlserver">SQL Server接続オブジェクト</param>
   Public Sub OutputAllCsv(dtTokuisaki As DataTable,
                            dtShohin As DataTable,
                            dtTanto As DataTable,
@@ -139,6 +174,13 @@ Public Class KeiryokiMasterOutputService
 
   End Sub
 
+  ''' <summary>
+  ''' PC側マスタの項目を更新
+  ''' </summary>
+  ''' <param name="dtTokuisaki">仕入先マスタDataTable</param>
+  ''' <param name="dtShohin">商品マスタDataTable</param>
+  ''' <param name="dtCode">担当者マスタDataTable</param>
+  ''' <param name="prmSqlServer">SQL Server接続オブジェクト</param>
   Public Sub UpdatePcFields(dtTokuisaki As DataTable,
                             dtShohin As DataTable,
                             dtCode As DataTable,
@@ -149,6 +191,11 @@ Public Class KeiryokiMasterOutputService
     UpdateTokuisakiShohinBaika(dtShohin, prmSqlServer)
   End Sub
 
+  ''' <summary>
+  ''' 仕入先マスタのPC側項目を更新
+  ''' </summary>
+  ''' <param name="dt">対象DataTable</param>
+  ''' <param name="prmSqlServer">SQL Server接続オブジェクト</param>
   Private Sub UpdateTokuisakiPcFields(dt As DataTable, prmSqlServer As ClsSqlServer)
     Try
       If dt Is Nothing Then Return
@@ -179,6 +226,11 @@ Public Class KeiryokiMasterOutputService
 
   End Sub
 
+  ''' <summary>
+  ''' 商品マスタのPC側項目を更新
+  ''' </summary>
+  ''' <param name="dt">対象DataTable</param>
+  ''' <param name="prmSqlServer">SQL Server接続オブジェクト</param>
   Private Sub UpdateShohinPcFields(dt As DataTable, prmSqlServer As ClsSqlServer)
     Try
       If dt Is Nothing Then Return
@@ -206,6 +258,11 @@ Public Class KeiryokiMasterOutputService
 
   End Sub
 
+  ''' <summary>
+  ''' 得意先商品マスタの売価を更新
+  ''' </summary>
+  ''' <param name="dt">対象DataTable</param>
+  ''' <param name="prmSqlServer">SQL Server接続オブジェクト</param>
   Private Sub UpdateTokuisakiShohinBaika(dt As DataTable, prmSqlServer As ClsSqlServer)
     Try
       If dt Is Nothing Then Return
@@ -232,6 +289,11 @@ Public Class KeiryokiMasterOutputService
     End Try
   End Sub
 
+  ''' <summary>
+  ''' 担当者マスタのPC側項目を更新
+  ''' </summary>
+  ''' <param name="dt">対象DataTable</param>
+  ''' <param name="prmSqlServer">SQL Server接続オブジェクト</param>
   Private Sub UpdateTantoshaPcFields(dt As DataTable, prmSqlServer As ClsSqlServer)
     Try
       If dt Is Nothing Then Return
@@ -256,6 +318,11 @@ Public Class KeiryokiMasterOutputService
 
   End Sub
 
+  ''' <summary>
+  ''' 仕入先マスタCSV文字列を作成
+  ''' </summary>
+  ''' <param name="dt">対象DataTable</param>
+  ''' <returns>仕入先マスタのCSV文字列</returns>
   Private Function BuildSupplierCsv(dt As DataTable) As String
     Dim sb As New StringBuilder()
     Dim rtn As String = String.Empty
@@ -278,6 +345,11 @@ Public Class KeiryokiMasterOutputService
     Return rtn
   End Function
 
+  ''' <summary>
+  ''' 担当者マスタCSV文字列を作成
+  ''' </summary>
+  ''' <param name="dt">対象DataTable</param>
+  ''' <returns>担当者マスタのCSV文字列</returns>
   Private Function BuildTantoCsv(dt As DataTable) As String
     Dim sb As New StringBuilder()
     Dim rtn As String = String.Empty
@@ -301,6 +373,11 @@ Public Class KeiryokiMasterOutputService
     Return rtn
   End Function
 
+  ''' <summary>
+  ''' 商品マスタCSV文字列を作成
+  ''' </summary>
+  ''' <param name="dt">対象DataTable</param>
+  ''' <returns>商品マスタのCSV文字列</returns>
   Private Function BuildItemCsv(dt As DataTable) As String
     Dim sb As New StringBuilder()
     Dim rtn As String = String.Empty
@@ -327,31 +404,62 @@ Public Class KeiryokiMasterOutputService
 
   End Function
 
+  ''' <summary>
+  ''' CSV出力用の文字列を整形
+  ''' </summary>
+  ''' <param name="value">入力値</param>
+  ''' <returns>CSV出力用に整形した文字列</returns>
   Private Function CsvRaw(value As String) As String
     If value Is Nothing Then value = ""
     Return value.Replace("""", """")
   End Function
 
+  ''' <summary>
+  ''' CSV項目をダブルクォートで囲んで整形
+  ''' </summary>
+  ''' <param name="value">入力値</param>
+  ''' <returns>CSV項目として整形した文字列</returns>
   Private Function CsvValue(value As String) As String
     If value Is Nothing Then value = ""
     Return """" & value.Replace("""", """") & """"
   End Function
 
+  ''' <summary>
+  ''' Shift-JIS形式でファイルを出力
+  ''' </summary>
+  ''' <param name="path">出力ファイルパス</param>
+  ''' <param name="content">出力内容</param>
   Private Sub WriteShiftJis(path As String, content As String)
     File.WriteAllText(path, content, Encoding.GetEncoding(932))
   End Sub
 
+  ''' <summary>
+  ''' DataRowから文字列値を取得
+  ''' </summary>
+  ''' <param name="row">対象DataRow</param>
+  ''' <param name="columnName">対象列名</param>
+  ''' <returns>指定列の文字列値</returns>
   Private Function GetString(row As DataRow, columnName As String) As String
     If row Is Nothing OrElse Not row.Table.Columns.Contains(columnName) Then Return ""
     If IsDBNull(row(columnName)) OrElse row(columnName) Is Nothing Then Return ""
     Return row(columnName).ToString().Trim()
   End Function
 
+  ''' <summary>
+  ''' SQL文字列値を生成
+  ''' </summary>
+  ''' <param name="value">入力値</param>
+  ''' <returns>SQLの文字列値</returns>
   Private Function SqlValue(value As String) As String
     If value Is Nothing Then Return "NULL"
     Return "'" & value.Replace("'", "''") & "'"
   End Function
 
+  ''' <summary>
+  ''' SQL数値値を生成
+  ''' </summary>
+  ''' <param name="value">入力値</param>
+  ''' <returns>SQLの数値値</returns>
   Private Function NumericSqlValue(value As String) As String
     If String.IsNullOrWhiteSpace(value) Then Return "NULL"
     Dim number As Decimal
@@ -361,6 +469,10 @@ Public Class KeiryokiMasterOutputService
     Return "NULL"
   End Function
 
+  ''' <summary>
+  ''' 仕入先マスタ取得SQLを生成
+  ''' </summary>
+  ''' <returns>仕入先マスタ取得用SQL</returns>
   Private Function BuildTokuisakiSelectSql() As String
     Dim sb As New StringBuilder()
     sb.AppendLine("SELECT")
@@ -378,6 +490,10 @@ Public Class KeiryokiMasterOutputService
     Return sb.ToString()
   End Function
 
+  ''' <summary>
+  ''' 商品マスタ取得SQLを生成
+  ''' </summary>
+  ''' <returns>商品マスタ取得用SQL</returns>
   Private Function BuildShohinSelectSql() As String
     Dim sb As New StringBuilder()
     sb.AppendLine("SELECT")
@@ -391,6 +507,10 @@ Public Class KeiryokiMasterOutputService
     Return sb.ToString()
   End Function
 
+  ''' <summary>
+  ''' 担当者マスタ取得SQLを生成
+  ''' </summary>
+  ''' <returns>担当者マスタ取得用SQL</returns>
   Private Function BuildTantoSelectSql() As String
     Dim sb As New StringBuilder()
     sb.AppendLine("SELECT")
@@ -401,6 +521,11 @@ Public Class KeiryokiMasterOutputService
     Return sb.ToString()
   End Function
 
+  ''' <summary>
+  ''' 計量器マスタ取得SQLを生成
+  ''' </summary>
+  ''' <param name="Para_ScaleNumber">取得対象の計量器番号</param>
+  ''' <returns>計量器マスタ取得用SQL</returns>
   Private Function GetMstScaleSelectSql(Para_ScaleNumber As String) As String
     Dim sql As String = String.Empty
     sql &= " SELECT"

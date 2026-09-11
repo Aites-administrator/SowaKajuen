@@ -17,6 +17,11 @@ Public Class FrmKeiryokiMasterOutput
   Private _sqlServer As New ClsSqlServer
   Private _masterImportCompleted As Boolean = False
 
+  ''' <summary>
+  ''' 画面起動時の初期処理
+  ''' </summary>
+  ''' <param name="sender">イベント発生元</param>
+  ''' <param name="e">イベント引数</param>
   Private Sub FrmKeiryokiMasterOutput_Load(sender As Object, e As EventArgs) Handles MyBase.Load
     Try
       _service = New KeiryokiMasterOutputService()
@@ -30,18 +35,27 @@ Public Class FrmKeiryokiMasterOutput
     End Try
   End Sub
 
+  ''' <summary>
+  ''' フォームの初期設定
+  ''' </summary>
   Private Sub InitializeForm()
     Me.Text = "計量器マスタ出力"
     Me.StartPosition = FormStartPosition.CenterScreen
     Me.KeyPreview = True
   End Sub
 
+  ''' <summary>
+  ''' 各マスタのグリッド初期設定
+  ''' </summary>
   Private Sub InitializeGrid()
     InitializeTokuisakiGrid()
     InitializeShohinGrid()
     InitializeTantoGrid()
   End Sub
 
+  ''' <summary>
+  ''' 仕入先マスタグリッドの初期設定
+  ''' </summary>
   Private Sub InitializeTokuisakiGrid()
     dgvTokuisaki.AutoGenerateColumns = False
     dgvTokuisaki.Columns.Clear()
@@ -57,6 +71,9 @@ Public Class FrmKeiryokiMasterOutput
     AddTextColumn(dgvTokuisaki, "TokuiInvoiceNumber", "事業者登録番号", 180)
   End Sub
 
+  ''' <summary>
+  ''' 商品マスタグリッドの初期設定
+  ''' </summary>
   Private Sub InitializeShohinGrid()
     dgvShohin.AutoGenerateColumns = False
     dgvShohin.Columns.Clear()
@@ -69,6 +86,9 @@ Public Class FrmKeiryokiMasterOutput
     AddTextColumn(dgvShohin, "HyojunKakaku", "標準価格", 150)
   End Sub
 
+  ''' <summary>
+  ''' 担当者マスタグリッドの初期設定
+  ''' </summary>
   Private Sub InitializeTantoGrid()
     dgvTanto.AutoGenerateColumns = False
     dgvTanto.Columns.Clear()
@@ -78,6 +98,10 @@ Public Class FrmKeiryokiMasterOutput
     AddTextColumn(dgvTanto, "NAME", "担当者名", 280)
   End Sub
 
+  ''' <summary>
+  ''' グリッド共通設定
+  ''' </summary>
+  ''' <param name="grid">対象DataGridView</param>
   Private Sub SetupGridCommon(grid As DataGridView)
     grid.DefaultCellStyle.Font = New Font("Segoe UI", 15)
     grid.ColumnHeadersDefaultCellStyle.Font = New Font("Segoe UI", 15)
@@ -93,6 +117,13 @@ Public Class FrmKeiryokiMasterOutput
     grid.EditMode = DataGridViewEditMode.EditOnEnter
   End Sub
 
+  ''' <summary>
+  ''' グリッドへテキスト列を追加
+  ''' </summary>
+  ''' <param name="grid">対象DataGridView</param>
+  ''' <param name="dataPropertyName">DataTable列名</param>
+  ''' <param name="headerText">グリッド列ヘッダ表示名</param>
+  ''' <param name="width">列幅</param>
   Private Sub AddTextColumn(grid As DataGridView, dataPropertyName As String, headerText As String, width As Integer)
     Dim col As New DataGridViewTextBoxColumn()
     col.Name = dataPropertyName
@@ -103,6 +134,9 @@ Public Class FrmKeiryokiMasterOutput
     grid.Columns.Add(col)
   End Sub
 
+  ''' <summary>
+  ''' グリッド編集時の入力コントロール設定
+  ''' </summary>
   Private Sub Grid_EditingControlShowing(sender As Object, e As DataGridViewEditingControlShowingEventArgs) _
       Handles dgvTokuisaki.EditingControlShowing, dgvShohin.EditingControlShowing, dgvTanto.EditingControlShowing
 
@@ -128,6 +162,11 @@ Public Class FrmKeiryokiMasterOutput
     AddHandler textBox.TextChanged, AddressOf GridEditingControl_TextChanged
   End Sub
 
+  ''' <summary>
+  ''' グリッド編集中のバイト数制御
+  ''' </summary>
+  ''' <param name="sender">イベント発生元</param>
+  ''' <param name="e">イベント引数</param>
   Private Sub GridEditingControl_TextChanged(sender As Object, e As EventArgs)
 
     Dim textBox As DataGridViewTextBoxEditingControl =
@@ -162,6 +201,12 @@ Public Class FrmKeiryokiMasterOutput
                                        Math.Max(0, textBox.Text.Length - textBox.SelectionStart))
   End Sub
 
+  ''' <summary>
+  ''' グリッド・列に対応する最大バイト数を取得
+  ''' </summary>
+  ''' <param name="gridName">DataGridView名</param>
+  ''' <param name="columnName">対象列名</param>
+  ''' <returns>対象列の最大バイト数</returns>
   Private Function GetColumnMaxLengthByGridName(gridName As String, columnName As String) As Integer
 
     Select Case gridName
@@ -196,6 +241,12 @@ Public Class FrmKeiryokiMasterOutput
     Return Integer.MaxValue
   End Function
 
+  ''' <summary>
+  ''' 指定バイト数以内に文字列を切り詰める
+  ''' </summary>
+  ''' <param name="value">入力値</param>
+  ''' <param name="maxBytes">最大バイト数</param>
+  ''' <returns>指定バイト数以内に切り詰めた文字列</returns>
   Private Function TrimToByteLength(value As String, maxBytes As Integer) As String
 
     If String.IsNullOrEmpty(value) Then Return String.Empty
@@ -216,6 +267,12 @@ Public Class FrmKeiryokiMasterOutput
     Return sb.ToString()
   End Function
 
+  ''' <summary>
+  ''' グリッド・列に対応する最大バイト数を取得
+  ''' </summary>
+  ''' <param name="grid">対象DataGridView</param>
+  ''' <param name="columnName">対象列名</param>
+  ''' <returns>対象列の最大バイト数</returns>
   Private Function GetColumnMaxLength(grid As DataGridView, columnName As String) As Integer
     Select Case grid.Name
       Case "dgvTokuisaki"
@@ -249,6 +306,11 @@ Public Class FrmKeiryokiMasterOutput
     Return 32767
   End Function
 
+  ''' <summary>
+  ''' グリッド編集中の入力文字制御
+  ''' </summary>
+  ''' <param name="sender">イベント発生元</param>
+  ''' <param name="e">イベント引数</param>
   Private Sub GridEditingControl_KeyPress(sender As Object, e As KeyPressEventArgs)
     If Char.IsControl(e.KeyChar) Then Return
 
@@ -282,6 +344,9 @@ Public Class FrmKeiryokiMasterOutput
     End Select
   End Sub
 
+  ''' <summary>
+  ''' グリッドセル確定前の入力チェック
+  ''' </summary>
   Private Sub Grid_CellValidating(sender As Object, e As DataGridViewCellValidatingEventArgs) _
       Handles dgvTokuisaki.CellValidating, dgvShohin.CellValidating, dgvTanto.CellValidating
 
@@ -352,6 +417,9 @@ Public Class FrmKeiryokiMasterOutput
     End If
   End Sub
 
+  ''' <summary>
+  ''' グリッドセル確定後のコード0埋め処理
+  ''' </summary>
   Private Sub Grid_CellValidated(sender As Object, e As DataGridViewCellEventArgs) _
     Handles dgvTokuisaki.CellValidated, dgvShohin.CellValidated, dgvTanto.CellValidated
 
@@ -380,6 +448,13 @@ Public Class FrmKeiryokiMasterOutput
 
   End Sub
 
+  ''' <summary>
+  ''' 入力値の文字種エラーメッセージを取得
+  ''' </summary>
+  ''' <param name="grid">対象DataGridView</param>
+  ''' <param name="columnName">対象列名</param>
+  ''' <param name="value">入力値</param>
+  ''' <returns>入力内容に応じたエラーメッセージ。問題がない場合は空文字列</returns>
   Private Function GetInvalidCharacterMessage(grid As DataGridView, columnName As String, value As String) As String
     If value = "" Then Return ""
 
@@ -405,6 +480,9 @@ Public Class FrmKeiryokiMasterOutput
     Return ""
   End Function
 
+  ''' <summary>
+  ''' 全マスタデータを取得して表示
+  ''' </summary>
   Private Sub SearchAllData()
     dgvTokuisaki.EndEdit()
     dgvShohin.EndEdit()
@@ -419,24 +497,42 @@ Public Class FrmKeiryokiMasterOutput
     dgvTanto.DataSource = _dtTanto
   End Sub
 
+  ''' <summary>
+  ''' 仕入先マスタを検索して表示
+  ''' </summary>
   Private Sub SearchTokuisaki()
     txtTokuisakiCd.Text = If(String.IsNullOrWhiteSpace(txtTokuisakiCd.Text), "", txtTokuisakiCd.Text.PadLeft(CUSTOMER_ZERO_LENGTH, "0"c))
     dgvTokuisaki.EndEdit()
     ApplyFilter(_dtTokuisaki, txtTokuisakiCd.Text.Trim(), txtTokuisakiNm.Text.Trim(), "TokuiCD", "TokuiNM1", dgvTokuisaki)
   End Sub
 
+  ''' <summary>
+  ''' 商品マスタを検索して表示
+  ''' </summary>
   Private Sub SearchShohin()
     txtShohinCd.Text = If(String.IsNullOrWhiteSpace(txtShohinCd.Text), "", txtShohinCd.Text.PadLeft(ITEM_ZERO_LENGTH, "0"c))
     dgvShohin.EndEdit()
     ApplyFilter(_dtShohin, txtShohinCd.Text.Trim(), txtShohinNm.Text.Trim(), "ShohinCD", "ShohinNM", dgvShohin)
   End Sub
 
+  ''' <summary>
+  ''' 担当者マスタを検索して表示
+  ''' </summary>
   Private Sub SearchTanto()
     txtTantoCd.Text = If(String.IsNullOrWhiteSpace(txtTantoCd.Text), "", txtTantoCd.Text.PadLeft(TANTO_ZERO_LENGTH, "0"c))
     dgvTanto.EndEdit()
     ApplyFilter(_dtTanto, txtTantoCd.Text.Trim(), txtTantoNm.Text.Trim(), "CODE", "NAME", dgvTanto)
   End Sub
 
+  ''' <summary>
+  ''' 指定条件でグリッドデータを絞り込む
+  ''' </summary>
+  ''' <param name="dt">対象DataTable</param>
+  ''' <param name="code">確認するコード</param>
+  ''' <param name="name">nameの値</param>
+  ''' <param name="codeColumn">codeColumnの値</param>
+  ''' <param name="nameColumn">nameColumnの値</param>
+  ''' <param name="grid">対象DataGridView</param>
   Private Sub ApplyFilter(dt As DataTable,
                            code As String,
                            name As String,
@@ -458,11 +554,21 @@ Public Class FrmKeiryokiMasterOutput
     grid.DataSource = view
   End Sub
 
+  ''' <summary>
+  ''' DataViewの検索条件用に文字列をエスケープ
+  ''' </summary>
+  ''' <param name="value">入力値</param>
+  ''' <returns>DataViewの検索条件用にエスケープした文字列</returns>
   Private Function EscapeFilter(value As String) As String
     If value Is Nothing Then Return ""
     Return value.Replace("'", "''").Replace("[", "[[").Replace("]", "]]")
   End Function
 
+  ''' <summary>
+  ''' 現在選択中のマスタに行を追加
+  ''' </summary>
+  ''' <param name="sender">イベント発生元</param>
+  ''' <param name="e">イベント引数</param>
   Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
     Try
       Dim grid As DataGridView = GetCurrentGrid()
@@ -487,6 +593,11 @@ Public Class FrmKeiryokiMasterOutput
     End Try
   End Sub
 
+  ''' <summary>
+  ''' 現在選択中のマスタの行を削除
+  ''' </summary>
+  ''' <param name="sender">イベント発生元</param>
+  ''' <param name="e">イベント引数</param>
   Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
     Try
       Dim grid As DataGridView = GetCurrentGrid()
@@ -504,6 +615,11 @@ Public Class FrmKeiryokiMasterOutput
     End Try
   End Sub
 
+  ''' <summary>
+  ''' 計量器マスタCSVを出力してマスタ取込・PC側更新を実行
+  ''' </summary>
+  ''' <param name="sender">イベント発生元</param>
+  ''' <param name="e">イベント引数</param>
   Private Sub btnOutput_Click(sender As Object, e As EventArgs) Handles btnOutput.Click
     Try
       dgvTokuisaki.EndEdit()
@@ -550,12 +666,18 @@ Public Class FrmKeiryokiMasterOutput
     End Try
   End Sub
 
+  ''' <summary>
+  ''' 各マスタの入力内容を検証
+  ''' </summary>
   Private Sub ValidateCodes()
     ValidateTokuisaki()
     ValidateShohin()
     ValidateTanto()
   End Sub
 
+  ''' <summary>
+  ''' 仕入先マスタの入力内容を検証
+  ''' </summary>
   Private Sub ValidateTokuisaki()
     If _dtTokuisaki Is Nothing Then Return
 
@@ -580,6 +702,9 @@ Public Class FrmKeiryokiMasterOutput
     ValidateDuplicateCodes(_dtTokuisaki, "TokuiCD", "仕入先")
   End Sub
 
+  ''' <summary>
+  ''' 商品マスタの入力内容を検証
+  ''' </summary>
   Private Sub ValidateShohin()
     If _dtShohin Is Nothing Then Return
 
@@ -600,6 +725,9 @@ Public Class FrmKeiryokiMasterOutput
     ValidateDuplicateCodes(_dtShohin, "ShohinCD", "商品")
   End Sub
 
+  ''' <summary>
+  ''' 担当者マスタの入力内容を検証
+  ''' </summary>
   Private Sub ValidateTanto()
     If _dtTanto Is Nothing Then Return
 
@@ -617,6 +745,14 @@ Public Class FrmKeiryokiMasterOutput
     ValidateDuplicateCodes(_dtTanto, "CODE", "担当者")
   End Sub
 
+  ''' <summary>
+  ''' 指定コードがグリッド内で重複しているか確認
+  ''' </summary>
+  ''' <param name="grid">対象DataGridView</param>
+  ''' <param name="rowIndex">対象行番号</param>
+  ''' <param name="columnName">対象列名</param>
+  ''' <param name="code">確認するコード</param>
+  ''' <returns>コードが重複している場合はTrue、それ以外はFalse</returns>
   Private Function IsDuplicateCode(grid As DataGridView,
                                   rowIndex As Integer,
                                   columnName As String,
@@ -661,6 +797,12 @@ Public Class FrmKeiryokiMasterOutput
     Return False
   End Function
 
+  ''' <summary>
+  ''' マスタ内のコード重複を検証
+  ''' </summary>
+  ''' <param name="dt">対象DataTable</param>
+  ''' <param name="columnName">対象列名</param>
+  ''' <param name="targetName">対象マスタ名</param>
   Private Sub ValidateDuplicateCodes(dt As DataTable,
                                      columnName As String,
                                      targetName As String)
@@ -696,6 +838,13 @@ Public Class FrmKeiryokiMasterOutput
     End Try
   End Sub
 
+  ''' <summary>
+  ''' 文字列のShift-JISバイト数を検証
+  ''' </summary>
+  ''' <param name="row">対象DataRow</param>
+  ''' <param name="columnName">対象列名</param>
+  ''' <param name="maxLength">最大バイト数</param>
+  ''' <param name="displayName">表示名</param>
   Private Sub ValidateTextLength(row As DataRow, columnName As String, maxLength As Integer, displayName As String)
     Dim value As String = GetDataRowString(row, columnName)
     If Encoding.GetEncoding(932).GetByteCount(value) > maxLength Then
@@ -703,6 +852,14 @@ Public Class FrmKeiryokiMasterOutput
     End If
   End Sub
 
+  ''' <summary>
+  ''' 文字種とShift-JISバイト数を検証
+  ''' </summary>
+  ''' <param name="row">対象DataRow</param>
+  ''' <param name="columnName">対象列名</param>
+  ''' <param name="maxLength">最大バイト数</param>
+  ''' <param name="pattern">入力値を判定する正規表現</param>
+  ''' <param name="errorMessage">入力エラーメッセージ</param>
   Private Sub ValidatePattern(row As DataRow, columnName As String, maxLength As Integer, pattern As String, errorMessage As String)
     Dim value As String = GetDataRowString(row, columnName)
     If value = "" Then Return
@@ -711,12 +868,21 @@ Public Class FrmKeiryokiMasterOutput
     End If
   End Sub
 
+  ''' <summary>
+  ''' DataRowから文字列値を取得
+  ''' </summary>
+  ''' <param name="row">対象DataRow</param>
+  ''' <param name="columnName">対象列名</param>
+  ''' <returns>指定列の文字列値</returns>
   Private Function GetDataRowString(row As DataRow, columnName As String) As String
     If row Is Nothing OrElse Not row.Table.Columns.Contains(columnName) Then Return ""
     If IsDBNull(row(columnName)) OrElse row(columnName) Is Nothing Then Return ""
     Return row(columnName).ToString().Trim()
   End Function
 
+  ''' <summary>
+  ''' 既存のマスタ取込処理を呼び出す
+  ''' </summary>
   Private Sub CallGetMaster()
     Dim dr As DialogResult
     Dim Concat_ScaleNumber As String = String.Empty
@@ -752,18 +918,31 @@ Public Class FrmKeiryokiMasterOutput
     End Try
   End Sub
 
+  ''' <summary>
+  ''' 現在選択中のタブに対応するグリッドを取得
+  ''' </summary>
+  ''' <returns>現在選択中のDataGridView</returns>
   Private Function GetCurrentGrid() As DataGridView
     If tabMaster.SelectedTab Is tabTokuisaki Then Return dgvTokuisaki
     If tabMaster.SelectedTab Is tabShohin Then Return dgvShohin
     Return dgvTanto
   End Function
 
+  ''' <summary>
+  ''' 現在選択中のタブに対応するDataTableを取得
+  ''' </summary>
+  ''' <returns>現在選択中のDataTable</returns>
   Private Function GetCurrentDataTable() As DataTable
     If tabMaster.SelectedTab Is tabTokuisaki Then Return _dtTokuisaki
     If tabMaster.SelectedTab Is tabShohin Then Return _dtShohin
     Return _dtTanto
   End Function
 
+  ''' <summary>
+  ''' ファンクションキーおよびEnterキーのキーボード操作を処理
+  ''' </summary>
+  ''' <param name="sender">イベント発生元</param>
+  ''' <param name="e">イベント引数</param>
   Private Sub FrmKeiryokiMasterOutput_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
     Try
       If e.KeyCode = Keys.Enter Then
@@ -802,18 +981,36 @@ Public Class FrmKeiryokiMasterOutput
     End Try
   End Sub
 
+  ''' <summary>
+  ''' 仕入先検索条件変更時の処理
+  ''' </summary>
+  ''' <param name="sender">イベント発生元</param>
+  ''' <param name="e">イベント引数</param>
   Private Sub txtTokuisaki_TextChanged(sender As Object, e As EventArgs) Handles txtTokuisakiCd.TextChanged, txtTokuisakiNm.TextChanged
     ' 検索はEnterで実行
   End Sub
 
+  ''' <summary>
+  ''' 商品検索条件変更時の処理
+  ''' </summary>
+  ''' <param name="sender">イベント発生元</param>
+  ''' <param name="e">イベント引数</param>
   Private Sub txtShohin_TextChanged(sender As Object, e As EventArgs) Handles txtShohinCd.TextChanged, txtShohinNm.TextChanged
     ' 検索はEnterで実行
   End Sub
 
+  ''' <summary>
+  ''' 担当者検索条件変更時の処理
+  ''' </summary>
+  ''' <param name="sender">イベント発生元</param>
+  ''' <param name="e">イベント引数</param>
   Private Sub txtTanto_TextChanged(sender As Object, e As EventArgs) Handles txtTantoCd.TextChanged, txtTantoNm.TextChanged
     ' 検索はEnterで実行
   End Sub
 
+  ''' <summary>
+  ''' 検索用コード欄の数値入力制御
+  ''' </summary>
   Private Sub TxtNumberOnly_KeyPress(sender As Object, e As KeyPressEventArgs) _
     Handles txtTokuisakiCd.KeyPress, txtShohinCd.KeyPress, txtTantoCd.KeyPress
 
@@ -828,6 +1025,11 @@ Public Class FrmKeiryokiMasterOutput
     End If
   End Sub
 
+  ''' <summary>
+  ''' マスタバーコード印刷処理
+  ''' </summary>
+  ''' <param name="sender">イベント発生元</param>
+  ''' <param name="e">イベント引数</param>
   Private Sub btnBarcodePrint_Click(sender As Object, e As EventArgs) Handles btnBarcodePrint.Click
     Dim ReportWkTable As String = "WK_MASTER"
     Dim ReportName As String = "R_MASTER"
@@ -841,10 +1043,20 @@ Public Class FrmKeiryokiMasterOutput
     End Try
   End Sub
 
+  ''' <summary>
+  ''' 画面を終了
+  ''' </summary>
+  ''' <param name="sender">イベント発生元</param>
+  ''' <param name="e">イベント引数</param>
   Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
     Me.Close()
   End Sub
 
+  ''' <summary>
+  ''' 画面終了時の後処理
+  ''' </summary>
+  ''' <param name="sender">イベント発生元</param>
+  ''' <param name="e">イベント引数</param>
   Private Sub FrmKeiryokiMasterOutput_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
     Try
       _sqlServer.Dispose()

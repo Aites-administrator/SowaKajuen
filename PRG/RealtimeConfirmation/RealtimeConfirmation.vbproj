@@ -165,10 +165,6 @@
       <Project>{287fca5a-50af-4701-b638-a6ed611d147a}</Project>
       <Name>Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ConsoleApp_Upload\ConsoleApp_Upload.vbproj">
-      <Project>{e4bab070-38c2-4a80-a8a2-eb1b2ba09808}</Project>
-      <Name>ConsoleApp_Upload</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

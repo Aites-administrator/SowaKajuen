@@ -211,10 +211,9 @@ Public Class Form_ResultList
     Dim child As New ItemAddForm(Me) ' 親フォームを渡す
     Dim cnt As Integer = 1
     Dim tmpDenNoDb As New T.R.ZCommonClass.clsSqlServer
-    Dim tmpMeisaiAddChk As Boolean = True
     Try
       '入力チェック
-      If Not CheckInput(tmpMeisaiAddChk) Then
+      If Not CheckInput() Then
         Exit Sub
       End If
 
@@ -276,9 +275,9 @@ Public Class Form_ResultList
         InsertData("TokuiNM") = Me.TxtTokuName.Text
         InsertData("TokuiNM2") = tmpTokuiDt.Rows(0).Item("TokuiNM2").ToString
         InsertData("TokuiKN") = tmpTokuiDt.Rows(0).Item("TokuiKN").ToString
-        InsertData("TokuiZipCD") = tmpTokuiDt.Rows(0).Item("TokuiZipCD").ToString
-        InsertData("TokuiAdd1") = tmpTokuiDt.Rows(0).Item("TokuiAdd1").ToString
-        InsertData("TokuiAdd2") = tmpTokuiDt.Rows(0).Item("TokuiAdd2").ToString
+        InsertData("TokuiZipCD") = Me.txtZipCd.Text
+        InsertData("TokuiAdd1") = Me.TxtJusho1.Text
+        InsertData("TokuiAdd2") = Me.TxtJusho2.Text
         InsertData("TokuiTel") = Me.TxtTokuiTel.Text
         InsertData("TyokuCD") = If(String.IsNullOrWhiteSpace(Me.CmbMstChoku1.Text), "0".PadLeft(TYOKUSO_CODE_LENGTH, "0"c), Me.CmbMstChoku1.Text)
         InsertData("TyokuNM") = Me.TxtChokuName.Text
@@ -552,7 +551,7 @@ Public Class Form_ResultList
   ''' </summary>
   ''' <param name="sender"></param>
   ''' <param name="e"></param>
-  Private Sub TxtNumericBase_KeyPress(sender As Object, e As System.Windows.Forms.KeyPressEventArgs) Handles TxtBunruiCd.KeyPress, TxtDenNo.KeyPress, TxtDenpyoKbn.KeyPress, TxtBumonCd.KeyPress, TxtMeisaiSu.KeyPress, TxtGoukeiKin.KeyPress, TxtBaikaKei.KeyPress
+  Private Sub TxtNumericBase_KeyPress(sender As Object, e As System.Windows.Forms.KeyPressEventArgs) Handles TxtBunruiCd.KeyPress, TxtDenNo.KeyPress, TxtDenpyoKbn.KeyPress, TxtBumonCd.KeyPress, TxtMeisaiSu.KeyPress, TxtGoukeiKin.KeyPress, TxtBaikaKei.KeyPress, txtZipCd.KeyPress
 
     ' 数値とバックスペースのみ入力可
     If (e.KeyChar < "0"c OrElse "9"c < e.KeyChar) AndAlso e.KeyChar <> ControlChars.Back Then
@@ -618,8 +617,11 @@ Public Class Form_ResultList
   ''' <param name="prmTxtLabelCustomer"></param>
   Private Function CmbMstCustomerValidating(prmCmbMstCustomer As ComboBox, prmTxtLabelCustomer As TextBox)
     Dim rtn As Boolean = False
+    Dim CodeChgFlg As Boolean = False
+    Dim LastCodeEmpty = String.IsNullOrWhiteSpace(lastCmbMstCustomer)
     If (lastCmbMstCustomer.Equals(prmCmbMstCustomer.Text) = False) Then
       lastCmbMstCustomer = prmCmbMstCustomer.Text
+      CodeChgFlg = True
     End If
 
     If String.IsNullOrWhiteSpace(prmCmbMstCustomer.Text) Then
@@ -632,7 +634,12 @@ Public Class Form_ResultList
         ' 得意先コード
         prmCmbMstCustomer.Text = tmpDt.Rows(0)("Code").ToString
         prmTxtLabelCustomer.Text = tmpDt.Rows(0)("Name").ToString
-        Me.TxtTokuiTel.Text = tmpDt.Rows(0)("TokuiTel").ToString
+        If Not LastCodeEmpty AndAlso CodeChgFlg Then
+          Me.TxtTokuiTel.Text = tmpDt.Rows(0)("TokuiTel").ToString
+          Me.txtZipCd.Text = tmpDt.Rows(0)("TokuiZipCD").ToString
+          Me.TxtJusho1.Text = tmpDt.Rows(0)("TokuiAdd1").ToString
+          Me.TxtJusho2.Text = tmpDt.Rows(0)("TokuiAdd2").ToString
+        End If
       Else
         ComMessageBox("得意先が存在しません。" _
                                 , PRG_TITLE _
@@ -945,6 +952,9 @@ Public Class Form_ResultList
     sql &= "	,	Ku 売上区分 "
     sql &= "	,	TokuiCd 得意先コード "
     sql &= "	,	TokuiNM 得意先名 "
+    sql &= "	,	TokuiZipCD 郵便番号 "
+    sql &= "	,	TokuiAdd1 住所１"
+    sql &= "	,	TokuiAdd2 住所２ "
     sql &= "	,	IsNull(TokuiTel,'') 得意先Tel "
     sql &= "	,	Denku 伝区 "
     sql &= "	,	DenKBN 伝票区分 "
@@ -1040,13 +1050,15 @@ Public Class Form_ResultList
   End Sub
 
   Private Sub ClickAddGyoButton()
+    Dim tmpMeisaiAddChk As Boolean = True
+
     Try
       If DataGridView1.Rows.Count = 99 Then
         ComMessageBox("100行以上の明細を追加することはできません。", PRG_TITLE, typMsgBox.MSG_WARNING)
         Exit Sub
       End If
 
-      If Not CheckInput(True) Then
+      If Not CheckInput(tmpMeisaiAddChk) Then
         Exit Sub
       End If
       Dim child As New ItemAddForm(Me) ' 親フォームを渡す
@@ -1191,6 +1203,9 @@ Public Class Form_ResultList
     Me.CmbMstCustomer1.Text = tmpDt.Rows(0).Item("得意先コード")
     Me.TxtTokuiTel.Text = tmpDt.Rows(0).Item("得意先Tel")
     Me.TxtTokuName.Text = tmpDt.Rows(0).Item("得意先名")
+    Me.txtZipCd.Text = tmpDt.Rows(0).Item("郵便番号")
+    Me.TxtJusho1.Text = tmpDt.Rows(0).Item("住所１")
+    Me.TxtJusho2.Text = tmpDt.Rows(0).Item("住所２")
     Me.TxtBunruiCd.Text = tmpDt.Rows(0).Item("分類コード")
     Me.CmbMstDenku1.Text = tmpDt.Rows(0).Item("伝区")
     CmbMstDenkuValidating(CmbMstDenku1, TxtDenkuName)

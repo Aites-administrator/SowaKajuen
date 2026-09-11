@@ -136,14 +136,6 @@
       <Project>{F38C221B-17E9-4AB3-8FDA-658A1E265D4F}</Project>
       <Name>T.R.ZCommonCtrl</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TantoshaMaster\TantoushaMaster.vbproj">
-      <Project>{07ac9cde-ee96-466e-8ff9-58d470285070}</Project>
-      <Name>TantoushaMaster</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TokuisakiMaster\TokuisakiMaster.vbproj">
-      <Project>{52b738b7-f1a5-4efa-8330-75a14863f227}</Project>
-      <Name>TokuisakiMaster</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

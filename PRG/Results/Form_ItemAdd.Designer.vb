@@ -134,7 +134,7 @@ Partial Class ItemAddForm
         '
         Me.TxtTeikanNohinSuryo.Font = New System.Drawing.Font("Segoe UI", 14.25!)
         Me.TxtTeikanNohinSuryo.Location = New System.Drawing.Point(256, 315)
-        Me.TxtTeikanNohinSuryo.MaxLength = 10
+        Me.TxtTeikanNohinSuryo.MaxLength = 5
         Me.TxtTeikanNohinSuryo.Name = "TxtTeikanNohinSuryo"
         Me.TxtTeikanNohinSuryo.Size = New System.Drawing.Size(64, 33)
         Me.TxtTeikanNohinSuryo.TabIndex = 11
@@ -145,7 +145,7 @@ Partial Class ItemAddForm
         '
         Me.TxtHuteikanTani.Font = New System.Drawing.Font("Segoe UI", 14.25!)
         Me.TxtHuteikanTani.Location = New System.Drawing.Point(422, 263)
-        Me.TxtHuteikanTani.MaxLength = 10
+        Me.TxtHuteikanTani.MaxLength = 4
         Me.TxtHuteikanTani.Name = "TxtHuteikanTani"
         Me.TxtHuteikanTani.Size = New System.Drawing.Size(64, 33)
         Me.TxtHuteikanTani.TabIndex = 8
@@ -164,7 +164,7 @@ Partial Class ItemAddForm
         '
         Me.TxtHuteikanNohinSuryo.Font = New System.Drawing.Font("Segoe UI", 14.25!)
         Me.TxtHuteikanNohinSuryo.Location = New System.Drawing.Point(256, 263)
-        Me.TxtHuteikanNohinSuryo.MaxLength = 10
+        Me.TxtHuteikanNohinSuryo.MaxLength = 9
         Me.TxtHuteikanNohinSuryo.Name = "TxtHuteikanNohinSuryo"
         Me.TxtHuteikanNohinSuryo.Size = New System.Drawing.Size(64, 33)
         Me.TxtHuteikanNohinSuryo.TabIndex = 7
@@ -246,8 +246,8 @@ Partial Class ItemAddForm
         '
         Me.TxtKotai1.Font = New System.Drawing.Font("Segoe UI", 14.25!)
         Me.TxtKotai1.Location = New System.Drawing.Point(207, 423)
-        Me.TxtKotai1.MaxLength = 20
-        Me.TxtKotai1.Name = "TxtKotai1"
+    Me.TxtKotai1.MaxLength = 20
+    Me.TxtKotai1.Name = "TxtKotai1"
         Me.TxtKotai1.Size = New System.Drawing.Size(314, 33)
         Me.TxtKotai1.TabIndex = 15
         '
@@ -256,8 +256,8 @@ Partial Class ItemAddForm
         Me.TxtKotai2.Font = New System.Drawing.Font("Segoe UI", 14.25!)
         Me.TxtKotai2.ImeMode = System.Windows.Forms.ImeMode.Alpha
         Me.TxtKotai2.Location = New System.Drawing.Point(207, 462)
-        Me.TxtKotai2.MaxLength = 20
-        Me.TxtKotai2.Name = "TxtKotai2"
+    Me.TxtKotai2.MaxLength = 20
+    Me.TxtKotai2.Name = "TxtKotai2"
         Me.TxtKotai2.Size = New System.Drawing.Size(314, 33)
         Me.TxtKotai2.TabIndex = 16
         '
@@ -275,7 +275,7 @@ Partial Class ItemAddForm
         '
         Me.TxtKotai3.Font = New System.Drawing.Font("Segoe UI", 14.25!)
         Me.TxtKotai3.Location = New System.Drawing.Point(207, 501)
-        Me.TxtKotai3.MaxLength = 20
+        Me.TxtKotai3.MaxLength = 40
         Me.TxtKotai3.Name = "TxtKotai3"
         Me.TxtKotai3.Size = New System.Drawing.Size(314, 33)
         Me.TxtKotai3.TabIndex = 17
@@ -326,7 +326,7 @@ Partial Class ItemAddForm
         '
         Me.TxtTeikanTani.Font = New System.Drawing.Font("Segoe UI", 14.25!)
         Me.TxtTeikanTani.Location = New System.Drawing.Point(422, 315)
-        Me.TxtTeikanTani.MaxLength = 10
+        Me.TxtTeikanTani.MaxLength = 4
         Me.TxtTeikanTani.Name = "TxtTeikanTani"
         Me.TxtTeikanTani.Size = New System.Drawing.Size(64, 33)
         Me.TxtTeikanTani.TabIndex = 12
@@ -513,7 +513,7 @@ Partial Class ItemAddForm
         '
         Me.TxtHuteikanKosu.Font = New System.Drawing.Font("Segoe UI", 14.25!)
         Me.TxtHuteikanKosu.Location = New System.Drawing.Point(97, 263)
-        Me.TxtHuteikanKosu.MaxLength = 10
+        Me.TxtHuteikanKosu.MaxLength = 5
         Me.TxtHuteikanKosu.Name = "TxtHuteikanKosu"
         Me.TxtHuteikanKosu.Size = New System.Drawing.Size(64, 33)
         Me.TxtHuteikanKosu.TabIndex = 6

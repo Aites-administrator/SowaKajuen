@@ -197,6 +197,40 @@ Public Class ClsPrintingProcess
 
   End Sub
 
+  Public Overloads Sub PrintProcess(prmPreview As Integer, prmTableName As String, prmReportName As String)
+    Dim tmpTantoDt As New DataTable
+    Dim tmpTokuiDt As New DataTable
+    Dim tmpShohinDt As New DataTable
+
+    Try
+      '対象データ取得
+      SqlServer.GetResult(tmpTantoDt, SqlGetTantoData())
+      SqlServer.GetResult(tmpTokuiDt, SqlGetTokuiData())
+      SqlServer.GetResult(tmpShohinDt, SqlGetShohinData())
+
+      '印刷処理
+      If tmpTantoDt.Rows.Count = 0 Then
+        Exit Sub
+      End If
+      If tmpTokuiDt.Rows.Count = 0 Then
+        Exit Sub
+      End If
+      If tmpShohinDt.Rows.Count = 0 Then
+        Exit Sub
+      End If
+
+
+
+      If Not AccessPrint(prmPreview, prmTableName, prmReportName, CreateMasterData(tmpTokuiDt, tmpShohinDt, tmpTantoDt)) Then
+        Throw New Exception("印刷処理に失敗しました。")
+      End If
+
+    Catch ex As Exception
+      ComWriteErrLog(ex)
+    End Try
+
+  End Sub
+
   Public Overloads Sub PrintProcess(prmPreview As Integer, prmTableName As String, prmReportName As String, Optional ByRef prmWhereList As Dictionary(Of String, List(Of String)) = Nothing)
     Dim tmpDt As New DataTable
     Try
@@ -226,7 +260,7 @@ Public Class ClsPrintingProcess
       End If
 
       'ワークテーブル作成
-      UpdateReportNohinSet(tmpDt, prmTableName)
+      UpdateReportNohinSet(tmpDt, prmTableName, True)
 
       '印刷処理
       AccessRun(prmPreview, prmReportName, True)
@@ -235,6 +269,99 @@ Public Class ClsPrintingProcess
       rtn = False
     End Try
     Return rtn
+  End Function
+
+  Private Function CreateMasterData(tmpTokuiDt As DataTable, tmpShohinDt As DataTable, tmpTantoDt As DataTable) As DataTable
+
+    ' WK_MASTER の構造を作成
+    Dim dt As New DataTable
+    dt.Columns.Add("SIIRE_CD", GetType(String))
+    dt.Columns.Add("SIIRE_NM", GetType(String))
+    dt.Columns.Add("ITEM_CD", GetType(String))
+    dt.Columns.Add("ITEM_NM", GetType(String))
+    dt.Columns.Add("TANTO_CD", GetType(String))
+    dt.Columns.Add("TANTO_NM", GetType(String))
+
+    ' 仕入先 × 商品 × 担当者 の全組み合わせを作成
+    For Each tokui As DataRow In tmpTokuiDt.Rows
+      For Each shohin As DataRow In tmpShohinDt.Rows
+        For Each tanto As DataRow In tmpTantoDt.Rows
+
+          dt.Rows.Add(
+                    tokui("TokuiCD"),
+                    tokui("TokuiNM1"),
+                    shohin("ShohinCD"),
+                    shohin("ShohinNM"),
+                    tanto("CODE"),
+                    tanto("NAME")
+                )
+
+        Next
+      Next
+    Next
+
+    Return dt
+  End Function
+
+  ''' <summary>
+  ''' 量目表（セット）ワークテーブル削除と新規作成
+  ''' </summary>
+  ''' <returns>
+  '''  True   -   成功
+  '''  False  -   失敗
+  ''' </returns>
+  Private Function UpdateReportNohinSet(prmDt As DataTable, prmTableName As String, Optional prmMaster As Boolean = False) As Boolean
+
+    Dim tmpDb As New ClsReport(ClsCommonGlobalData.REPORT_FILENAME)
+    Dim dt As DateTime = DateTime.Parse(ComGetProcTime())
+    Dim UpdEndFlg As Boolean = False
+
+    ' 実行
+    With tmpDb
+
+      Try
+        ' SQL文の作成
+        .Execute("DELETE FROM " & prmTableName)
+
+      Catch ex As Exception
+        Call ComWriteErrLog(ex)
+        Throw New Exception("量目表（セット）ワークテーブルの削除に失敗しました")
+
+      End Try
+
+      Try
+        Dim sql As String
+        Dim tmpDenNo As String = String.Empty
+
+        ' トランザクション開始
+        .TrnStart()
+
+        ' データテーブルから追加SQL文を作成
+        For Each row As DataRow In prmDt.Rows
+
+          sql = SqlInsMaster(prmTableName, row)
+          If String.IsNullOrWhiteSpace(sql) = False Then
+            .Execute(sql)
+          End If
+
+        Next
+
+        ' 更新成功
+        .TrnCommit()
+
+      Catch ex As Exception
+        Call ComWriteErrLog(ex)
+        .TrnRollBack()
+        Throw New Exception("量目表（セット）ワークテーブルの書き込みに失敗しました")
+      End Try
+
+      .Dispose()
+
+    End With
+
+
+    Return True
+
   End Function
 
   ''' <summary>
@@ -415,6 +542,40 @@ Public Class ClsPrintingProcess
     End Try
 
   End Sub
+
+  Private Overloads Function SqlGetTantoData() As String
+    Dim sql As String = String.Empty
+
+    sql &= " SELECT CODE "
+    sql &= "     ,  NAME "
+    sql &= " FROM MST_TANTO "
+    sql &= " ORDER BY CODE "
+
+    Return sql
+  End Function
+
+  Private Overloads Function SqlGetTokuiData() As String
+    Dim sql As String = String.Empty
+
+    sql &= " SELECT TokuiCD "
+    sql &= "     ,  TokuiNM1"
+    sql &= " FROM MST_TOKUISAKI "
+    sql &= " ORDER BY TokuiCD "
+
+    Return sql
+  End Function
+
+  Private Overloads Function SqlGetShohinData() As String
+    Dim sql As String = String.Empty
+
+    sql &= " SELECT ShohinCD "
+    sql &= "    ,   ShohinNM "
+    sql &= " FROM MST_SHOHIN "
+    sql &= " ORDER BY ShohinCD "
+
+    Return sql
+  End Function
+
 
   Private Overloads Function SqlGetPrintData(Optional ByRef prmWhereList As Dictionary(Of String, String) = Nothing) As String
     Dim sql As String = String.Empty
@@ -999,6 +1160,74 @@ Public Class ClsPrintingProcess
 
     sql &= " )"
     Console.WriteLine(sql)
+
+    Return sql
+
+  End Function
+
+  ''' <summary>
+  ''' WK_MASTER テーブル追加SQL文作成
+  ''' </summary>
+  ''' <param name="tblName">テーブル名</param>
+  ''' <param name="tmpRow">設定値</param>
+  ''' <returns>作成したSQL文</returns>
+  Private Function SqlInsMaster(tblName As String,
+                              tmpRow As DataRow) As String
+
+    Dim sql As String = String.Empty
+
+    sql &= " INSERT INTO " & tblName
+    sql &= "                   ( SIIRE_CD "          '01:
+    sql &= "                   , SIIRE_NM "          '02:
+    sql &= "                   , ITEM_CD "           '03:
+    sql &= "                   , ITEM_NM "           '04:
+    sql &= "                   , TANTO_CD "          '05:
+    sql &= "                   , TANTO_NM "          '06:
+    sql &= ") VALUES("
+
+    '仕入先コード
+    If String.IsNullOrWhiteSpace(tmpRow("SIIRE_CD").ToString) Then
+      sql &= "NULL,"                               '01:
+    Else
+      sql &= "'" & tmpRow("SIIRE_CD").ToString & "',"   '01:
+    End If
+
+    '仕入先名
+    If String.IsNullOrWhiteSpace(tmpRow("SIIRE_NM").ToString) Then
+      sql &= "NULL,"                               '02:
+    Else
+      sql &= "'" & tmpRow("SIIRE_NM").ToString & "',"   '02:
+    End If
+
+    '商品コード
+    If String.IsNullOrWhiteSpace(tmpRow("ITEM_CD").ToString) Then
+      sql &= "NULL,"                               '03:
+    Else
+      sql &= "'" & tmpRow("ITEM_CD").ToString & "',"    '03:
+    End If
+
+    '商品名
+    If String.IsNullOrWhiteSpace(tmpRow("ITEM_NM").ToString) Then
+      sql &= "NULL,"                               '04:
+    Else
+      sql &= "'" & tmpRow("ITEM_NM").ToString & "',"    '04:
+    End If
+
+    '担当者コード
+    If String.IsNullOrWhiteSpace(tmpRow("TANTO_CD").ToString) Then
+      sql &= "NULL,"                               '05:
+    Else
+      sql &= "'" & tmpRow("TANTO_CD").ToString & "',"   '05:
+    End If
+
+    '担当者名
+    If String.IsNullOrWhiteSpace(tmpRow("TANTO_NM").ToString) Then
+      sql &= "NULL"                                '06:
+    Else
+      sql &= "'" & tmpRow("TANTO_NM").ToString & "'"    '06:
+    End If
+
+    sql &= " )"
 
     Return sql
 

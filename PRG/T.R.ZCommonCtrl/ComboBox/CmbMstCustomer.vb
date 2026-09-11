@@ -23,10 +23,10 @@ Public Class CmbMstCustomer
 #Region "コンストラクタ"
 
   Public Sub New()
-
     MyBase.New("0".PadLeft(CUSTOMER_CODE_LENGTH, "0"c))
     lcCallBackCreateSql = AddressOf SqlSelListSrc
     InitCmb()
+    Me.MaxLength = CUSTOMER_CODE_LENGTH
     ' フォーカス時、表示メッセージ設定
     MyBase.SetMsgLabelText("得意先名を選択入力して下さい。")
     MyBase.DropDownWidth = 360
@@ -39,6 +39,8 @@ Public Class CmbMstCustomer
     MyBase.New("")
     lcCallBackCreateSql = AddressOf SqlSelListSrc
     InitCmb()
+    Me.MaxLength = CUSTOMER_CODE_LENGTH
+
     ' フォーカス時、表示メッセージ設定
     MyBase.SetMsgLabelText("得意先名を選択入力して下さい。")
     MyBase.DropDownWidth = 360

@@ -3,7 +3,7 @@ Imports Common
 Imports Common.ClsFunction
 Imports T.R.ZCommonCtrl
 Imports T.R.ZCommonClass.clsCodeLengthSetting
-
+Imports System.Text
 Public Class ItemAddForm
   Inherits FormBase
 #Region "定数定義"
@@ -225,6 +225,28 @@ Public Class ItemAddForm
 
     End If
 
+  End Sub
+  Private Sub TxtKotai_KeyPress(sender As Object, e As KeyPressEventArgs) _
+    Handles TxtKotai1.KeyPress, TxtKotai2.KeyPress
+
+    ' バックスペースは許可
+    If e.KeyChar = ControlChars.Back Then
+      Return
+    End If
+
+    Dim txt As TextBox = DirectCast(sender, TextBox)
+
+    ' 入力予定の文字を含めた文字列
+    Dim nextText As String = txt.Text & e.KeyChar
+
+    ' Shift_JIS のバイト数を取得
+    Dim enc As Encoding = Encoding.GetEncoding("Shift_JIS")
+    Dim byteCount As Integer = enc.GetByteCount(nextText)
+
+    ' 制限：20バイト以内
+    If byteCount > 20 Then
+      e.Handled = True
+    End If
   End Sub
 
 
@@ -856,7 +878,7 @@ Public Class ItemAddForm
     LimitByByteLength(TxtKotai3, 100)
   End Sub
 
-  Private Sub TxtTeikanTanka_TextChanged(sender As Object, e As EventArgs) Handles TxtHuteikanNohinSuryo.TextChanged, TxtHuteikanTanka.TextChanged, TxtTeikanNohinSuryo.TextChanged, TxtTeikanTanka.TextChanged
+  Private Sub TxtTeikanTanka_TextChanged(sender As Object, e As EventArgs) Handles TxtHuteikanNohinSuryo.TextChanged, TxtHuteikanTanka.TextChanged, TxtTeikanNohinSuryo.TextChanged, TxtTeikanTanka.TextChanged, TxtHuteikanKosu.TextChanged
     Dim tb As TextBox = CType(sender, TextBox)
     ' 数字以外の文字をすべて除去
     Dim cleanText As String = System.Text.RegularExpressions.Regex.Replace(tb.Text, "[^0-9.]", "")

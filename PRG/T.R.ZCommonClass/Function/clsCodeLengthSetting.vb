@@ -17,7 +17,7 @@
   ''' <summary>
   '''  担当者コード桁数
   ''' </summary>
-  Public Shared ReadOnly TANTO_CODE_LENGTH As Integer = 6
+  Public Shared ReadOnly TANTO_CODE_LENGTH As Integer = 2
 
   ''' <summary>
   '''  伝票番号桁数

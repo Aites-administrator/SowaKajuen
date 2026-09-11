@@ -10,10 +10,17 @@ Public Class ClsCommonGlobalData
   Public Shared ReadOnly CUSTOMER_ZERO_PADDING As String = "000000"
   ' 商品コードゼロ詰め
   Public Shared ReadOnly ITEM_ZERO_PADDING As String = "000000"
-  ' 得意先コードゼロ詰め
+  ' 担当コードゼロ詰め
   Public Shared ReadOnly TANTO_ZERO_PADDING As String = "00"
   ' 直送先コードゼロ詰め
   Public Shared ReadOnly CHOKU_ZERO_PADDING As String = "00"
+
+  ' 得意先コードゼロ詰め
+  Public Shared ReadOnly CUSTOMER_ZERO_LENGTH As Integer = 6
+  ' 商品コードゼロ詰め
+  Public Shared ReadOnly ITEM_ZERO_LENGTH As Integer = 6
+  ' 担当コードゼロ詰め
+  Public Shared ReadOnly TANTO_ZERO_LENGTH As Integer = 2
 
   ''' <summary>
   ''' 印刷帳票の保存先

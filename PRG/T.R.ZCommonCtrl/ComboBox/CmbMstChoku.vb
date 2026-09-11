@@ -27,6 +27,7 @@ Public Class CmbMstChoku
     MyBase.New()
     lcCallBackCreateSql = AddressOf SqlSelListSrc
     InitCmb()
+    Me.MaxLength = TYOKUSO_CODE_LENGTH
     ' フォーカス時、表示メッセージ設定
     MyBase.SetMsgLabelText("直送先を選択入力して下さい。")
     MyBase.DropDownWidth = 360
@@ -40,6 +41,7 @@ Public Class CmbMstChoku
     MyBase.New("")
     lcCallBackCreateSql = AddressOf SqlSelListSrc
     InitCmb()
+    Me.MaxLength = TYOKUSO_CODE_LENGTH
     ' フォーカス時、表示メッセージ設定
     MyBase.SetMsgLabelText("直送先を選択入力して下さい。")
     MyBase.DropDownWidth = 360

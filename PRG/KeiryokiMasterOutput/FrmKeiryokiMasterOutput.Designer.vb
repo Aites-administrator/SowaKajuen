@@ -40,6 +40,7 @@ Partial Class FrmKeiryokiMasterOutput
     Me.btnAdd = New T.R.ZCommonCtrl.BtnBase()
     Me.btnDelete = New T.R.ZCommonCtrl.BtnBase()
     Me.btnOutput = New T.R.ZCommonCtrl.BtnBase()
+    Me.btnBarcodePrint = New T.R.ZCommonCtrl.BtnBase()
     Me.btnClose = New T.R.ZCommonCtrl.BtnBase()
     Me.LblMessage = New System.Windows.Forms.Label()
     Me.tabMaster.SuspendLayout()
@@ -172,6 +173,13 @@ Partial Class FrmKeiryokiMasterOutput
     Me.btnOutput.Text = "F5:CSV出力"
     Me.btnOutput.UseVisualStyleBackColor = True
 
+    Me.btnBarcodePrint.Font = New System.Drawing.Font("Segoe UI", 12.0!)
+    Me.btnBarcodePrint.Location = New System.Drawing.Point(1040, 235)
+    Me.btnBarcodePrint.Name = "btnBarcodePrint"
+    Me.btnBarcodePrint.Size = New System.Drawing.Size(135, 55)
+    Me.btnBarcodePrint.Text = "F8:バーコード" & vbCrLf & "印刷"
+    Me.btnBarcodePrint.UseVisualStyleBackColor = True
+
     Me.btnClose.Font = New System.Drawing.Font("Segoe UI", 14.25!)
     Me.btnClose.Location = New System.Drawing.Point(1040, 670)
     Me.btnClose.Name = "btnClose"
@@ -189,6 +197,7 @@ Partial Class FrmKeiryokiMasterOutput
     Me.ClientSize = New System.Drawing.Size(1200, 800)
     Me.Controls.Add(Me.LblMessage)
     Me.Controls.Add(Me.btnClose)
+    Me.Controls.Add(Me.btnBarcodePrint)
     Me.Controls.Add(Me.btnOutput)
     Me.Controls.Add(Me.btnDelete)
     Me.Controls.Add(Me.btnAdd)
@@ -231,6 +240,7 @@ Partial Class FrmKeiryokiMasterOutput
   Friend WithEvents btnAdd As T.R.ZCommonCtrl.BtnBase
   Friend WithEvents btnDelete As T.R.ZCommonCtrl.BtnBase
   Friend WithEvents btnOutput As T.R.ZCommonCtrl.BtnBase
+  Friend WithEvents btnBarcodePrint As T.R.ZCommonCtrl.BtnBase
   Friend WithEvents btnClose As T.R.ZCommonCtrl.BtnBase
   Friend WithEvents LblMessage As Label
 End Class

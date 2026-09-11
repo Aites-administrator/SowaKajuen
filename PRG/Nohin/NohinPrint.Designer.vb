@@ -190,7 +190,7 @@ Partial Class NohinPrint
         '
         Me.TxtDenNo.Font = New System.Drawing.Font("Segoe UI", 14.25!)
         Me.TxtDenNo.Location = New System.Drawing.Point(550, 36)
-        Me.TxtDenNo.MaxLength = 10
+        Me.TxtDenNo.MaxLength = 6
         Me.TxtDenNo.Name = "TxtDenNo"
         Me.TxtDenNo.Size = New System.Drawing.Size(132, 33)
         Me.TxtDenNo.TabIndex = 3
@@ -485,6 +485,7 @@ Partial Class NohinPrint
         Me.CmbMstCustomer1To.Font = New System.Drawing.Font("Segoe UI", 14.25!)
         Me.CmbMstCustomer1To.FormattingEnabled = True
         Me.CmbMstCustomer1To.Location = New System.Drawing.Point(660, 71)
+        Me.CmbMstCustomer1To.MaxLength = 6
         Me.CmbMstCustomer1To.Name = "CmbMstCustomer1To"
         Me.CmbMstCustomer1To.Size = New System.Drawing.Size(138, 34)
         Me.CmbMstCustomer1To.SkipChkCode = True
@@ -557,6 +558,7 @@ Partial Class NohinPrint
         Me.CmbMstCustomer1From.Font = New System.Drawing.Font("Segoe UI", 14.25!)
         Me.CmbMstCustomer1From.FormattingEnabled = True
         Me.CmbMstCustomer1From.Location = New System.Drawing.Point(155, 71)
+        Me.CmbMstCustomer1From.MaxLength = 6
         Me.CmbMstCustomer1From.Name = "CmbMstCustomer1From"
         Me.CmbMstCustomer1From.Size = New System.Drawing.Size(138, 34)
         Me.CmbMstCustomer1From.SkipChkCode = True

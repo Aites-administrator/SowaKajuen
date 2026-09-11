@@ -710,6 +710,10 @@ Module Module_ItemMasterDownload
 
       Next
 
+      Dim tmpTokuisaki As String = "0".PadLeft(CUSTOMER_CODE_LENGTH, "0"c)
+
+      tmpDb.Execute("delete from MST_TOKUISAKI_SHOHIN WHERE TokuiCD = '" & tmpTokuisaki & "'")
+
       ' データベースに挿入
       Dim sql As String = String.Empty
       For Each dr As DataRow In dt.Rows

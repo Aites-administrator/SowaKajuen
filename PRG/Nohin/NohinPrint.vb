@@ -616,6 +616,12 @@ Public Class NohinPrint
     Dim ReportWkTable As String = "WK_NOHIN"
 
     Try
+      If DataGridView1.CurrentRow Is Nothing Then
+        ComMessageBox("発行する伝票を選択してください。", "確認", typMsgBox.MSG_WARNING, typMsgBoxButton.BUTTON_OK)
+        Exit Sub
+      End If
+
+
       If RdoPrint.Checked Then
         tmpRdoPrint = 1
       Else
@@ -765,11 +771,12 @@ Public Class NohinPrint
   Private Sub ClickDeleteButton()
     Try
 
-      Dim idx = DataGridView1.CurrentRow.Index
       If DataGridView1.CurrentRow Is Nothing Then
         ComMessageBox("削除する伝票を選択してください。", "確認", typMsgBox.MSG_WARNING, typMsgBoxButton.BUTTON_OK)
         Exit Sub
       End If
+
+      Dim idx = DataGridView1.CurrentRow.Index
 
       If ComMessageBox("伝票を削除しますか？" _
                               , PRG_TITLE _

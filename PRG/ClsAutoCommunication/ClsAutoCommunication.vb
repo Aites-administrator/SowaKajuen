@@ -161,6 +161,7 @@ Public Class ClsAutoCommunication
       Dim CustomerMasterDownloadPath As String = ReadSettingIniFile("CUSTOMER_MASTER_DOWNLOAD_PATH", "VALUE")
       Dim ShippingMasterDownloadPath As String = ReadSettingIniFile("SHIPPING_MASTER_DOWNLOAD_PATH", "VALUE")
       Dim ItemMasterDownloadPath As String = ReadSettingIniFile("ITEM_MASTER_DOWNLOAD_PATH", "VALUE")
+      Dim TantoshaMasterDownloadPath As String = ReadSettingIniFile("TANTOSHA_MASTER_DOWNLOAD_PATH", "VALUE")
       Dim DownloadPath As String = ReadSettingIniFile("DOWNLOAD_PATH", "VALUE")
       Dim UploadPath As String = ReadSettingIniFile("UPLOAD_PATH", "VALUE")
       Dim ClsPrintingProcess As New ClsPrintingProcess.ClsPrintingProcess()
@@ -185,7 +186,7 @@ Public Class ClsAutoCommunication
                       .CreateNoWindow = False,
                       .UseShellExecute = False
                   }
-          'ComMessageBox("開始", "テスト", typMsgBox.MSG_NORMAL)
+          'ComMessageBox("得意先開始", "テスト", typMsgBox.MSG_NORMAL)
           Dim p As System.Diagnostics.Process = System.Diagnostics.Process.Start(DownloadExe)
           p.WaitForExit()
           'ComMessageBox("実績受信終了しました。" & vbCrLf & "処理結果をご確認下さい。", "確認", typMsgBox.MSG_NORMAL, typMsgBoxButton.BUTTON_OK)
@@ -198,7 +199,19 @@ Public Class ClsAutoCommunication
                       .CreateNoWindow = False,
                       .UseShellExecute = False
                   }
-          'ComMessageBox("開始", "テスト", typMsgBox.MSG_NORMAL)
+          'ComMessageBox("商品開始", "テスト", typMsgBox.MSG_NORMAL)
+          Dim p As System.Diagnostics.Process = System.Diagnostics.Process.Start(DownloadExe)
+          p.WaitForExit()
+          'ComMessageBox("実績受信終了しました。" & vbCrLf & "処理結果をご確認下さい。", "確認", typMsgBox.MSG_NORMAL, typMsgBoxButton.BUTTON_OK)
+          SelectFtpResult()
+        Case "TantoshaMasterDownload"
+          Dim DownloadExe As New ProcessStartInfo With {
+                  .FileName = TantoshaMasterDownloadPath,
+                  .Arguments = Concat_ScaleNumber,
+                      .CreateNoWindow = False,
+                      .UseShellExecute = False
+                  }
+          'ComMessageBox("担当者開始", "テスト", typMsgBox.MSG_NORMAL)
           Dim p As System.Diagnostics.Process = System.Diagnostics.Process.Start(DownloadExe)
           p.WaitForExit()
           'ComMessageBox("実績受信終了しました。" & vbCrLf & "処理結果をご確認下さい。", "確認", typMsgBox.MSG_NORMAL, typMsgBoxButton.BUTTON_OK)

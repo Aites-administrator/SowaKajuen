@@ -141,9 +141,12 @@ Public Class KeiryokiMasterOutputService
 
   Public Sub UpdatePcFields(dtTokuisaki As DataTable,
                             dtShohin As DataTable,
+                            dtCode As DataTable,
                             prmSqlServer As ClsSqlServer)
     UpdateTokuisakiPcFields(dtTokuisaki, prmSqlServer)
     UpdateShohinPcFields(dtShohin, prmSqlServer)
+    UpdateTantoshaPcFields(dtCode, prmSqlServer)
+    UpdateTokuisakiShohinBaika(dtShohin, prmSqlServer)
   End Sub
 
   Private Sub UpdateTokuisakiPcFields(dt As DataTable, prmSqlServer As ClsSqlServer)
@@ -194,6 +197,56 @@ Public Class KeiryokiMasterOutputService
         sql.AppendLine("    ZeikomiKBN = " & NumericSqlValue(GetString(row, "ZeikomiKBN")) & ",")
         sql.AppendLine("    HyojunKakaku = " & NumericSqlValue(GetString(row, "HyojunKakaku")))
         sql.AppendLine("WHERE ShohinCD = " & SqlValue(cd))
+
+        prmSqlServer.Execute(sql.ToString())
+      Next
+    Catch ex As Exception
+      ComWriteErrLog(ex)
+    End Try
+
+  End Sub
+
+  Private Sub UpdateTokuisakiShohinBaika(dt As DataTable, prmSqlServer As ClsSqlServer)
+    Try
+      If dt Is Nothing Then Return
+
+      For Each row As DataRow In dt.Rows
+        If row.RowState = DataRowState.Deleted Then Continue For
+
+        Dim shohinCd As String = GetString(row, "ShohinCD")
+        If shohinCd = "" Then Continue For
+
+        Dim baika As String = GetString(row, "HyojunKakaku")
+
+        Dim sql As New StringBuilder()
+        sql.AppendLine("UPDATE MST_TOKUISAKI_SHOHIN")
+        sql.AppendLine("SET")
+        sql.AppendLine("    Baika = " & NumericSqlValue(baika))
+        sql.AppendLine("WHERE TokuiCD = '000000'")
+        sql.AppendLine("  AND ShohinCD = " & SqlValue(shohinCd))
+
+        prmSqlServer.Execute(sql.ToString())
+      Next
+    Catch ex As Exception
+      ComWriteErrLog(ex)
+    End Try
+  End Sub
+
+  Private Sub UpdateTantoshaPcFields(dt As DataTable, prmSqlServer As ClsSqlServer)
+    Try
+      If dt Is Nothing Then Return
+
+      For Each row As DataRow In dt.Rows
+        If row.RowState = DataRowState.Deleted Then Continue For
+
+        Dim cd As String = GetString(row, "CODE")
+        If cd = "" Then Continue For
+
+        Dim sql As New StringBuilder()
+        sql.AppendLine("UPDATE MST_TANTO")
+        sql.AppendLine("SET")
+        sql.AppendLine("    NAME = " & SqlValue(GetString(row, "NAME")))
+        sql.AppendLine("WHERE CODE = " & SqlValue(cd))
 
         prmSqlServer.Execute(sql.ToString())
       Next

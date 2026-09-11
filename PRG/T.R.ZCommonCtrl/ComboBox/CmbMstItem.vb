@@ -13,8 +13,9 @@ Public Class CmbMstItem
     MyBase.New("0".PadLeft(ITEM_CODE_LENGTH, "0"c))
     lcCallBackCreateSql = AddressOf SqlSelListSrc
         InitCmb()
-        ' フォーカス時、表示メッセージ設定
-        MyBase.SetMsgLabelText("商品名を選択してください。")
+    Me.MaxLength = ITEM_CODE_LENGTH
+    ' フォーカス時、表示メッセージ設定
+    MyBase.SetMsgLabelText("商品名を選択してください。")
 
     End Sub
 

@@ -241,7 +241,7 @@ Public Class ClsPrintingProcess
     Dim tmpTantoDt As New DataTable
     Dim tmpTokuiDt As New DataTable
     Dim tmpShohinDt As New DataTable
-
+    Dim tmpMaster As Boolean = True
     Try
       '対象データ取得
       SqlServer.GetResult(tmpTantoDt, SqlGetTantoData())
@@ -261,7 +261,7 @@ Public Class ClsPrintingProcess
 
 
 
-      If Not AccessPrint(prmPreview, prmTableName, prmReportName, CreateMasterData(tmpTokuiDt, tmpShohinDt, tmpTantoDt)) Then
+      If Not AccessPrint(prmPreview, prmTableName, prmReportName, CreateMasterData(tmpTokuiDt, tmpShohinDt, tmpTantoDt), tmpMaster) Then
         Throw New Exception("印刷処理に失敗しました。")
       End If
 
@@ -273,7 +273,7 @@ Public Class ClsPrintingProcess
 
 
 
-  Private Function AccessPrint(prmPreview As Integer, prmTableName As String, prmReportName As String, tmpDt As DataTable) As Boolean
+  Private Function AccessPrint(prmPreview As Integer, prmTableName As String, prmReportName As String, tmpDt As DataTable, Optional prmMaster As Boolean = False) As Boolean
     Dim rtn As Boolean = True
 
     Try
@@ -282,7 +282,11 @@ Public Class ClsPrintingProcess
       End If
 
       'ワークテーブル作成
-      UpdateReportNohinSet(tmpDt, prmTableName, True)
+      If prmMaster Then
+        UpdateReportMasterSet(tmpDt, prmTableName)
+      Else
+        UpdateReportNohinSet(tmpDt, prmTableName)
+      End If
 
       '印刷処理
       AccessRun(prmPreview, prmReportName, True)
@@ -325,6 +329,7 @@ Public Class ClsPrintingProcess
     Return dt
   End Function
 
+
   ''' <summary>
   ''' 量目表（セット）ワークテーブル削除と新規作成
   ''' </summary>
@@ -332,7 +337,7 @@ Public Class ClsPrintingProcess
   '''  True   -   成功
   '''  False  -   失敗
   ''' </returns>
-  Private Function UpdateReportNohinSet(prmDt As DataTable, prmTableName As String, Optional prmMaster As Boolean = False) As Boolean
+  Private Function UpdateReportMasterSet(prmDt As DataTable, prmTableName As String) As Boolean
 
     Dim tmpDb As New ClsReport(ClsCommonGlobalData.REPORT_FILENAME)
     Dim dt As DateTime = DateTime.Parse(ComGetProcTime())

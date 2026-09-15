@@ -285,7 +285,7 @@ Public Class Form_ResultList
         InsertData("BumonCD") = Me.TxtBumonCd.Text
         InsertData("UTantoCD") = Me.CmbMstTanto1.Text
         'InsertData("TekiyoCD") = ""
-        'InsertData("TekiyoNM") = Me.TxtTekiyo.Text
+        InsertData("TekiyoNM") = Me.TxtTekiyo.Text
         'InsertData("BunruiCD") = Me.TxtBunruiCd.Text
         InsertData("DenKBN") = Me.TxtDenpyoKbn.Text
         InsertData("ShohinCD") = DataRow.Cells("商品コード").Value
@@ -628,13 +628,18 @@ Public Class Form_ResultList
       ' 得意先コード
       prmCmbMstCustomer.Text = String.Empty
       prmTxtLabelCustomer.Text = String.Empty
+      Me.TxtTokuiTel.Text = String.Empty
+      Me.txtZipCd.Text = String.Empty
+      Me.TxtJusho1.Text = String.Empty
+      Me.TxtJusho2.Text = String.Empty
     Else
       Dim tmpDt As New DataTable
       If (GetTKCode(prmCmbMstCustomer.Text, tmpDt)) Then
         ' 得意先コード
         prmCmbMstCustomer.Text = tmpDt.Rows(0)("Code").ToString
         prmTxtLabelCustomer.Text = tmpDt.Rows(0)("Name").ToString
-        If Not LastCodeEmpty AndAlso CodeChgFlg Then
+        '        If Not LastCodeEmpty AndAlso CodeChgFlg Then
+        If CodeChgFlg Then
           Me.TxtTokuiTel.Text = tmpDt.Rows(0)("TokuiTel").ToString
           Me.txtZipCd.Text = tmpDt.Rows(0)("TokuiZipCD").ToString
           Me.TxtJusho1.Text = tmpDt.Rows(0)("TokuiAdd1").ToString

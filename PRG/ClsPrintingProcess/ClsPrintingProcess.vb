@@ -175,33 +175,6 @@ Public Class ClsPrintingProcess
   End Function
 
   ''' <summary>
-  ''' 印刷スレッドプロセス(伝票印刷 条件リスト指定)
-  ''' </summary>
-  ''' <param name="prmPreview">プレビュー設定</param>
-  ''' <param name="prmTableName">テーブル名</param>
-  ''' <param name="prmReportName">レポート名</param>
-  ''' <param name="prmWhereList">抽出条件リスト</param>
-  Public Overloads Sub PrintProcess(prmPreview As Integer, prmTableName As String, prmReportName As String, Optional ByRef prmWhereList As Dictionary(Of String, List(Of String)) = Nothing)
-    Dim tmpDt As New DataTable
-    Try
-      '対象データ取得
-      SqlServer.GetResult(tmpDt, SqlGetPrintData(prmWhereList))
-
-      '印刷処理
-      If Not AccessPrint(prmPreview, prmTableName, prmReportName, tmpDt) Then
-        Throw New Exception("印刷処理に失敗しました。")
-      End If
-
-      For Each tmpRow As DataRow In tmpDt.Rows
-        SqlServer.Execute(SqlUpdPrintFlg(tmpRow, prmWhereList))
-      Next
-    Catch ex As Exception
-      ComWriteErrLog(ex, False)
-    End Try
-
-  End Sub
-
-  ''' <summary>
   ''' 印刷スレッドプロセス(伝票印刷 条件単体指定)
   ''' </summary>
   ''' <param name="prmPreview">プレビュー設定</param>
@@ -227,6 +200,36 @@ Public Class ClsPrintingProcess
       Next
     Catch ex As Exception
       ComWriteErrLog(ex)
+    End Try
+
+  End Sub
+
+  ''' <summary>
+  ''' 印刷スレッドプロセス(伝票印刷 条件リスト指定)
+  ''' </summary>
+  ''' <param name="prmPreview">プレビュー設定</param>
+  ''' <param name="prmTableName">テーブル名</param>
+  ''' <param name="prmReportName">レポート名</param>
+  ''' <param name="prmWhereList">抽出条件リスト</param>
+  Public Overloads Sub PrintProcess(prmPreview As Integer, prmTableName As String, prmReportName As String, Optional ByRef prmWhereList As Dictionary(Of String, List(Of String)) = Nothing)
+    Dim tmpDt As New DataTable
+    Try
+      '対象データ取得
+      SqlServer.GetResult(tmpDt, SqlGetPrintData(prmWhereList))
+
+      '印刷処理
+      If tmpDt.Rows.Count = 0 Then
+        Exit Sub
+      End If
+      If Not AccessPrint(prmPreview, prmTableName, prmReportName, tmpDt) Then
+        Throw New Exception("印刷処理に失敗しました。")
+      End If
+
+      For Each tmpRow As DataRow In tmpDt.Rows
+        SqlServer.Execute(SqlUpdPrintFlg(tmpRow, prmWhereList))
+      Next
+    Catch ex As Exception
+      ComWriteErrLog(ex,False)
     End Try
 
   End Sub
@@ -266,11 +269,10 @@ Public Class ClsPrintingProcess
       End If
 
     Catch ex As Exception
-      ComWriteErrLog(ex)
+      ComWriteErrLog(ex,False)
     End Try
 
   End Sub
-
 
 
   Private Function AccessPrint(prmPreview As Integer, prmTableName As String, prmReportName As String, tmpDt As DataTable, Optional prmMaster As Boolean = False) As Boolean
@@ -313,14 +315,14 @@ Public Class ClsPrintingProcess
       For Each shohin As DataRow In tmpShohinDt.Rows
         For Each tanto As DataRow In tmpTantoDt.Rows
 
-          dt.Rows.Add(
-                    tokui("TokuiCD"),
-                    tokui("TokuiNM1"),
-                    shohin("ShohinCD"),
-                    shohin("ShohinNM"),
-                    tanto("CODE"),
-                    tanto("NAME")
-                )
+          Dim row As DataRow = dt.NewRow()
+          row("SIIRE_CD") = tokui("TokuiCD")
+          row("SIIRE_NM") = tokui("TokuiNM1")
+          row("ITEM_CD") = shohin("ShohinCD")
+          row("ITEM_NM") = shohin("ShohinNM")
+          row("TANTO_CD") = tanto("CODE")
+          row("TANTO_NM") = tanto("NAME")
+          dt.Rows.Add(row)
 
         Next
       Next
@@ -328,7 +330,6 @@ Public Class ClsPrintingProcess
 
     Return dt
   End Function
-
 
   ''' <summary>
   ''' 量目表（セット）ワークテーブル削除と新規作成
@@ -352,7 +353,7 @@ Public Class ClsPrintingProcess
 
       Catch ex As Exception
         Call ComWriteErrLog(ex)
-        Throw New Exception("量目表（セット）ワークテーブルの削除に失敗しました")
+        Throw New Exception("マスタワークテーブルの削除に失敗しました")
 
       End Try
 
@@ -379,10 +380,12 @@ Public Class ClsPrintingProcess
       Catch ex As Exception
         Call ComWriteErrLog(ex)
         .TrnRollBack()
-        Throw New Exception("量目表（セット）ワークテーブルの書き込みに失敗しました")
+        Throw New Exception("マスタワークテーブルの書き込みに失敗しました")
+	Finally       
+			.Dispose()
+
       End Try
 
-      .Dispose()
 
     End With
 
@@ -392,7 +395,7 @@ Public Class ClsPrintingProcess
   End Function
 
   ''' <summary>
-  ''' 量目表（セット）ワークテーブル削除と新規作成
+  ''' 納品書ワークテーブル削除と新規作成
   ''' </summary>
   ''' <returns>
   '''  True   -   成功
@@ -413,7 +416,7 @@ Public Class ClsPrintingProcess
 
       Catch ex As Exception
         Call ComWriteErrLog(ex)
-        Throw New Exception("量目表（セット）ワークテーブルの削除に失敗しました")
+        Throw New Exception("納品書ワークテーブルの削除に失敗しました")
 
       End Try
 
@@ -426,18 +429,13 @@ Public Class ClsPrintingProcess
 
         ' データテーブルから追加SQL文を作成
         For Each row As DataRow In prmDt.Rows
-          If row("ZEIKOMI_TAX").ToString = "186" Then
-            Dim a = 1
-            a = 2
-          End If
-
 
           'TODO 伝票ナンバーと行Noをチェック
           If tmpDenNo <> row("DenNo") Then
 
             tmpDenNo = row("DenNo")
 
-            'TODO 変更があれば20でわった余り分を空行追加
+            'MAX_PRINT_COUNTに満たない場合、MAX_PRINT_COUNTでわった余り分を空行追加
             Dim rows() As DataRow = prmDt.Select("DenNo = '" & row("DenNo") & "'")
             Dim DenRowCount As Integer = rows.Length
             Dim EmptyRowCount As Integer = MAX_PRINT_COUNT - (DenRowCount Mod MAX_PRINT_COUNT)
@@ -452,6 +450,7 @@ Public Class ClsPrintingProcess
                   'TODO 伝票番号、行番号、得意先、発送先、ソート番号=1を入れて追加
                   tmpRow("DenNo") = row("DenNo")
                   tmpRow("GyoNo") = row("GyoNo")
+                  tmpRow("NohinDay") = row("NohinDay")
                   tmpRow("TokuiCD") = row("TokuiCD")
                   tmpRow("TokuiNm") = row("TokuiNm")
                   tmpRow("TyokuCd") = row("TyokuCd")
@@ -525,10 +524,12 @@ Public Class ClsPrintingProcess
       Catch ex As Exception
         Call ComWriteErrLog(ex)
         .TrnRollBack()
-        Throw New Exception("量目表（セット）ワークテーブルの書き込みに失敗しました")
+        Throw New Exception("納品書ワークテーブルの書き込みに失敗しました")
+
+      Finally
+        .Dispose()
       End Try
 
-      .Dispose()
 
     End With
 
@@ -536,6 +537,150 @@ Public Class ClsPrintingProcess
     Return True
 
   End Function
+
+  Private Function GetPrintDataBaseSql() As String
+
+    Dim sql As String = String.Empty
+
+    sql &= " SELECT trn_jisseki.NohinDay "
+    sql &= " , Case When trn_jisseki.DenNO2 Is NULL Then trn_jisseki.DenNO Else trn_jisseki.DenNO2 + '*' END AS DenNo "
+    sql &= " , RIGHT('00' + CAST(ISNULL(trn_jisseki.GyoNo2,trn_jisseki.GyoNo) AS VARCHAR(2)), 2) GyoNo "
+    sql &= " , trn_jisseki.TokuiCD "
+    sql &= " , trn_jisseki.TokuiNm "
+    sql &= " , trn_jisseki.ShohinCD "
+    sql &= " , trn_jisseki.ShohinNM "
+    sql &= " , CASE WHEN "
+    sql &= "     trn_jisseki.ShohinCD >= 100 "
+    sql &= "     THEN '' "
+    sql &= "     ELSE trn_jisseki.Iro "
+    sql &= "   END IRISU "
+    sql &= " , trn_jisseki.Suryo "
+    sql &= " , CASE WHEN "
+    sql &= "     trn_jisseki.ShohinCD >= 100 "
+    sql &= "     THEN '0' "
+    sql &= "     ELSE trn_jisseki.Tanka "
+    sql &= "   END Tanka "
+    sql &= " , trn_jisseki.UriageKin "
+    sql &= " , CASE WHEN "
+    sql &= "     trn_jisseki.ShohinCD >= 100 "
+    sql &= "     THEN '' "
+    sql &= "     ELSE trn_jisseki.Biko "
+    sql &= "   END Biko "
+    sql &= " , trn_jisseki.TyokuCD "
+    sql &= " , trn_jisseki.TyokuNM "
+    sql &= " , 0 AS SortNumber "
+
+    '↓追加項目
+    sql &= " , trn_jisseki.UriageKin AS BARCODE_VALUE "
+    sql &= " , trn_jisseki.TokuiTel "
+    sql &= " , MST_TOKUISAKI.FaxNo "
+    sql &= " , trn_jisseki.TokuiAdd1 "
+    sql &= " , trn_jisseki.TokuiAdd2 "
+    sql &= " , trn_jisseki.TokuiZipCD "
+    sql &= " , MST_TOKUISAKI.TokuiInvoiceNumber AS TOKUI_INVOICE_NUMBER "
+    sql &= " , trn_jisseki.UriageKin AS ZEIKOMI_KIN "
+    sql &= " , '' AS ZEINUKI_KIN "
+    sql &= " , CAST(ISNULL(Utizei, 0) AS INT) AS ZEIKOMI_TAX "
+    sql &= " , CAST(ISNULL(Sotozei, 0) AS INT) AS ZEINUKI_TAX "
+    sql &= " , CAST(ISNULL(Utizei, 0) AS INT) + CAST(ISNULL(Sotozei, 0) AS INT) AS TOTAL_TAX "
+    sql &= " , MST_TANTO.NAME AS TANTO_NM "
+    sql &= " , TRN_JISSEKI.Tani "
+    sql &= " , ' 8%※' AS TAX_8 "
+    sql &= " , '' AS TAX_10 "
+    '↑追加項目
+
+    sql &= " FROM trn_jisseki "
+
+    sql &= " LEFT JOIN MST_TOKUISAKI_SHOHIN "
+    sql &= " ON MST_TOKUISAKI_SHOHIN.TokuiCD = trn_jisseki.TokuiCD "
+    sql &= " AND MST_TOKUISAKI_SHOHIN.ShohinCD = trn_jisseki.ShohinCD "
+
+    sql &= " LEFT JOIN MST_TOKUISAKI_SHOHIN TOKUISAKI0 "
+    sql &= " ON TOKUISAKI0.TokuiCD = 0 "
+    sql &= " AND TOKUISAKI0.ShohinCD = trn_jisseki.ShohinCD "
+
+    sql &= " LEFT JOIN M_TOKUISAKI_PRINT_CTRL "
+    sql &= " ON M_TOKUISAKI_PRINT_CTRL.TOKUISAKI_CD = trn_jisseki.TokuiCD "
+
+    sql &= " LEFT JOIN MST_TOKUISAKI "
+    sql &= " ON MST_TOKUISAKI.TokuiCD = trn_jisseki.TokuiCD "
+
+    sql &= " LEFT JOIN MST_TANTO "
+    sql &= " ON MST_TANTO.CODE = trn_jisseki.UTantoCD "
+
+    sql &= " WHERE 1=1 "
+
+    Return sql
+
+  End Function
+
+  Private Overloads Function SqlGetPrintData(Optional ByRef prmWhereList As Dictionary(Of String, String) = Nothing) As String
+    Dim sql As String = GetPrintDataBaseSql()
+    Dim ReportType As String = ReadSettingIniFile("REPORT_TYPE", "VALUE")
+
+    If ReportType = SOKUJI Then
+      If prmWhereList.ContainsKey("INSTANT_PRINT_FLG IS NOT ") Then
+        prmWhereList.Remove("INSTANT_PRINT_FLG IS NOT ")
+      End If
+    End If
+
+    If prmWhereList IsNot Nothing Then
+
+      For Each strValue As KeyValuePair(Of String, String) In prmWhereList
+        sql &= " AND " & strValue.Key & " " & strValue.Value
+      Next
+
+    End If
+    sql &= " ORDER BY trn_jisseki.DenNO,trn_jisseki.GyoNo "
+
+    Return sql
+  End Function
+
+  Private Overloads Function SqlGetPrintData(Optional ByRef prmWhereList As Dictionary(Of String, List(Of String)) = Nothing) As String
+
+    Dim sql As String = GetPrintDataBaseSql()
+
+    Dim ReportType As String = ReadSettingIniFile("REPORT_TYPE", "VALUE")
+
+    If ReportType = SOKUJI Then
+      If prmWhereList IsNot Nothing AndAlso
+           prmWhereList.ContainsKey("INSTANT_PRINT_FLG IS NOT ") Then
+
+        prmWhereList.Remove("INSTANT_PRINT_FLG IS NOT ")
+
+      End If
+    End If
+
+    If prmWhereList IsNot Nothing Then
+
+      For Each tmpValue As KeyValuePair(Of String, List(Of String)) In prmWhereList
+
+        Dim key As String = tmpValue.Key
+        Dim vals As List(Of String) = tmpValue.Value
+
+        If vals.Count = 1 Then
+
+          sql &= $" AND {key} = '{vals(0)}'"
+
+        Else
+
+          Dim inList As String =
+                    String.Join(",", vals.Select(Function(v) $"'{v}'"))
+
+          sql &= $" AND {key} IN ({inList})"
+
+        End If
+
+      Next
+
+    End If
+
+    sql &= " ORDER BY trn_jisseki.DenNO,trn_jisseki.GyoNo "
+
+    Return sql
+
+  End Function
+
 
   Private Sub GetShukeiData(ByRef prmDt As DataTable)
 
@@ -566,6 +711,7 @@ Public Class ClsPrintingProcess
       prmReport.GetResult(prmDt, " SELECT * FROM WK_NOHIN ")
     Catch ex As Exception
       ComWriteErrLog(ex)
+      Throw New Exception("データ取得に失敗しました。")
     End Try
 
   End Sub
@@ -604,311 +750,6 @@ Public Class ClsPrintingProcess
   End Function
 
 
-  Private Overloads Function SqlGetPrintData(Optional ByRef prmWhereList As Dictionary(Of String, String) = Nothing) As String
-    Dim sql As String = String.Empty
-    Dim ReportType As String = ReadSettingIniFile("REPORT_TYPE", "VALUE")
-
-    If ReportType = SOKUJI Then
-      If prmWhereList.ContainsKey("INSTANT_PRINT_FLG IS NOT ") Then
-        prmWhereList.Remove("INSTANT_PRINT_FLG IS NOT ")
-      End If
-    End If
-
-    sql &= " Select	trn_jisseki.NohinDay "
-    sql &= "	,	Case When trn_jisseki.DenNO2 Is NULL Then trn_jisseki.DenNO Else trn_jisseki.DenNO2 + '*' END AS DenNo "
-    sql &= "	,	RIGHT('00' + CAST(ISNULL(trn_jisseki.GyoNo2,trn_jisseki.GyoNo)AS VARCHAR(2)), 2)  GyoNo "
-    sql &= "	,	trn_jisseki.TokuiCD "
-    sql &= "	,	trn_jisseki.TokuiNm "
-    sql &= "	,	trn_jisseki.ShohinCD "
-    sql &= "	,	trn_jisseki.ShohinNM "
-    sql &= "	,	CASE WHEN "
-    sql &= "		trn_jisseki.ShohinCD >= 100 "
-    sql &= "		then '' "
-    sql &= "		else trn_jisseki.Iro  "
-    sql &= "		end IRISU "
-    'sql &= "	,	CASE WHEN "
-    'sql &= "		trn_jisseki.ShohinCD >= 100 "
-    'sql &= "		then '' "
-    'sql &= "		else trn_jisseki.Suryo "
-    'sql &= "		end Suryo "
-    sql &= "	, trn_jisseki.Suryo "
-    sql &= "	,	CASE WHEN "
-    sql &= "		trn_jisseki.ShohinCD >= 100 "
-    sql &= "		then '0' "
-    sql &= "		else trn_jisseki.Tanka "
-    sql &= "		end Tanka "
-    sql &= "	,	trn_jisseki.UriageKin "
-    sql &= "	,	CASE WHEN "
-    sql &= "    trn_jisseki.ShohinCD >= 100 "
-    sql &= "    then '10%' "
-    sql &= "    else '8%' "   'プログラム側で8%対応1%対応を行う
-    sql &= "    end Zeiritsu "
-    sql &= "	,	CASE WHEN "
-    sql &= "		trn_jisseki.ShohinCD >= 100 "
-    sql &= "		then '' "
-    sql &= "		else trn_jisseki.Biko "
-    sql &= "		end Biko "
-    sql &= "	,	trn_jisseki.TyokuCD "
-    sql &= "	,	trn_jisseki.TyokuNM "
-    sql &= "	,	0 AS SortNumber "
-    '↓追加項目
-    sql &= "  ,   trn_jisseki.UriageKin AS BARCODE_VALUE "
-    sql &= "  ,   trn_jisseki.TokuiTel "
-    sql &= "  ,   MST_TOKUISAKI.FaxNo "
-    sql &= "  ,   trn_jisseki.TokuiAdd1 "
-    sql &= "  ,   trn_jisseki.TokuiAdd2 "
-    sql &= "  ,   trn_jisseki.TokuiZipCD "
-    sql &= "  ,   MST_TOKUISAKI.TokuiInvoiceNumber AS TOKUI_INVOICE_NUMBER "   '事業者登録番号を得意先マスタに追加
-    sql &= "  ,   UriageKin AS ZEIKOMI_KIN "   '集計項目
-    sql &= "  ,   '' AS ZEINUKI_KIN "   '集計項目
-    sql &= "  ,   CAST(ISNULL(Utizei, 0) AS INT) AS ZEIKOMI_TAX "
-    sql &= "  ,   CAST(ISNULL(Sotozei, 0) AS INT) AS ZEINUKI_TAX "
-    sql &= "  ,   CAST(ISNULL(Utizei, 0) AS INT)  + CAST(ISNULL(Sotozei, 0) AS INT)  AS TOTAL_TAX "
-    sql &= "  ,   MST_TANTO.NAME AS TANTO_NM "
-    sql &= "  ,   TRN_JISSEKI.Tani "
-    sql &= "  ,   ' 8%※' AS TAX_8 "   'プログラム側で8%対応1%対応を行う
-    sql &= "  ,   '' AS TAX_10 "
-    '↑追加項目
-    sql &= " FROM trn_jisseki "
-    sql &= " LEFT JOIN MST_TOKUISAKI_SHOHIN "
-    sql &= " ON MST_TOKUISAKI_SHOHIN.TokuiCD = trn_jisseki.TokuiCD "
-    sql &= " AND MST_TOKUISAKI_SHOHIN.ShohinCD  = trn_jisseki.ShohinCD "
-    sql &= " LEFT JOIN MST_TOKUISAKI_SHOHIN TOKUISAKI0 "
-    sql &= " ON TOKUISAKI0.TokuiCD = 0 "
-    sql &= " AND TOKUISAKI0.ShohinCD  =  trn_jisseki.ShohinCD "
-    sql &= " LEFT JOIN M_TOKUISAKI_PRINT_CTRL "
-    sql &= " ON M_TOKUISAKI_PRINT_CTRL.TOKUISAKI_CD = trn_jisseki.TokuiCD "
-    sql &= "LEFT JOIN MST_TOKUISAKI "
-    sql &= "ON MST_TOKUISAKI.TokuiCD = trn_jisseki.TokuiCD "
-    sql &= "LEFT JOIN MST_TANTO "
-    sql &= "ON MST_TANTO.CODE = trn_jisseki.UTantoCD "
-    sql &= " WHERE 1=1 "
-    For Each strValue As KeyValuePair(Of String, String) In prmWhereList
-      sql &= " AND " & strValue.Key & " " & strValue.Value
-    Next
-    sql &= " ORDER BY trn_jisseki.DenNO,trn_jisseki.GyoNo "
-
-    Return sql
-  End Function
-
-  Private Overloads Function SqlGetPrintData(Optional ByRef prmWhereList As Dictionary(Of String, List(Of String)) = Nothing) As String
-    Dim sql As String = String.Empty
-    Dim ReportType As String = ReadSettingIniFile("REPORT_TYPE", "VALUE")
-
-    If ReportType = SOKUJI Then
-      If prmWhereList.ContainsKey("INSTANT_PRINT_FLG IS NOT ") Then
-        prmWhereList.Remove("INSTANT_PRINT_FLG IS NOT ")
-      End If
-    End If
-
-
-    sql &= "SELECT	trn_jisseki.NohinDay "
-    sql &= "	,	trn_jisseki.DenNO2 + '*' DenNo "
-    sql &= "	,	RIGHT('00' + CAST(trn_jisseki.GyoNo2 AS VARCHAR(2)), 2) GyoNo "
-    sql &= "	,	trn_jisseki.TokuiCD "
-    sql &= "	,	trn_jisseki.TokuiNm "
-    sql &= "	,	trn_jisseki.ShohinCD "
-    sql &= "	,	trn_jisseki.ShohinNM "
-    sql &= "	,	CASE WHEN "
-    sql &= "		trn_jisseki.ShohinCD >= 100 "
-    sql &= "		then '' "
-    sql &= "		else trn_jisseki.Iro  "
-    sql &= "		end IRISU "
-    'sql &= "	,	CASE WHEN "
-    'sql &= "		trn_jisseki.ShohinCD >= 100 "
-    'sql &= "		then '' "
-    'sql &= "		else trn_jisseki.Suryo "
-    'sql &= "		end Suryo "
-    sql &= "	, trn_jisseki.Suryo "
-    sql &= "	,	CASE WHEN "
-    sql &= "		trn_jisseki.ShohinCD >= 100 "
-    sql &= "		then '0' "
-    sql &= "		else trn_jisseki.Tanka "
-    sql &= "		end Tanka "
-    sql &= "	,	trn_jisseki.UriageKin "
-    sql &= "  , CASE WHEN "
-    sql &= "    trn_jisseki.ShohinCD >= 100 "
-    sql &= "    then '10%' "
-    sql &= "    else '8%' "   'プログラム側で8%対応1%対応を行う
-    sql &= "    end Zeiritsu "
-    sql &= "	,	CASE WHEN "
-    sql &= "		trn_jisseki.ShohinCD >= 100 "
-    sql &= "		then '' "
-    sql &= "		else trn_jisseki.Biko "
-    sql &= "		end Biko "
-    sql &= "	,	trn_jisseki.TyokuCD "
-    sql &= "	,	trn_jisseki.TyokuNM "
-    sql &= "	,	0 AS SortNumber "
-    '↓追加項目
-    sql &= "  ,   trn_jisseki.UriageKin AS BARCODE_VALUE "
-    sql &= "  ,   trn_jisseki.TokuiTel "
-    sql &= "  ,   MST_TOKUISAKI.FaxNo "
-    sql &= "  ,   trn_jisseki.TokuiAdd1 "
-    sql &= "  ,   trn_jisseki.TokuiAdd2 "
-    sql &= "  ,   trn_jisseki.TokuiZipCD "
-    sql &= "  ,   MST_TOKUISAKI.TokuiInvoiceNumber AS TOKUI_INVOICE_NUMBER "   '事業者登録番号を得意先マスタに追加
-    sql &= "  ,   '' AS ZEINUKI_KIN "   '集計項目
-    sql &= "  ,   CAST(ISNULL(Utizei, 0) AS INT) AS ZEIKOMI_TAX "
-    sql &= "  ,   CAST(ISNULL(Sotozei, 0) AS INT) AS ZEINUKI_TAX "
-    sql &= "  ,   CAST(ISNULL(Utizei, 0) AS INT)  + CAST(ISNULL(Sotozei, 0) AS INT)  AS TOTAL_TAX "
-    sql &= "  ,   MST_TANTO.NAME AS TANTO_NM "
-    sql &= "  ,   TRN_JISSEKI.Tani "
-    sql &= "  ,   ' 8%※' AS TAX_8 "   'プログラム側で8%対応1%対応を行う
-    sql &= "  ,   '' AS TAX_10 "
-    '↑追加項目
-    sql &= "FROM trn_jisseki "
-    sql &= "LEFT JOIN MST_TOKUISAKI_SHOHIN "
-    sql &= "ON MST_TOKUISAKI_SHOHIN.TokuiCD = trn_jisseki.TokuiCD "
-    sql &= "AND MST_TOKUISAKI_SHOHIN.ShohinCD  = trn_jisseki.ShohinCD "
-    sql &= "LEFT JOIN MST_TOKUISAKI_SHOHIN TOKUISAKI0 "
-    sql &= "ON TOKUISAKI0.TokuiCD = 0 "
-    sql &= "AND TOKUISAKI0.ShohinCD  =  trn_jisseki.ShohinCD "
-    sql &= "LEFT JOIN MST_TOKUISAKI "
-    sql &= "ON MST_TOKUISAKI.TokuiCD = trn_jisseki.TokuiCD "
-    sql &= "LEFT JOIN MST_TANTO "
-    sql &= "ON MST_TANTO.CODE = trn_jisseki.UTantoCD "
-    sql &= "WHERE 1=1 "
-    If prmWhereList IsNot Nothing Then
-      For Each tmpValue As KeyValuePair(Of String, List(Of String)) In prmWhereList
-
-        Dim key As String = tmpValue.Key
-        Dim vals As List(Of String) = tmpValue.Value
-
-        If vals.Count = 1 Then
-          sql &= $" AND {key} = '{vals(0)}'"
-        Else
-          Dim inList = String.Join(",", vals.Select(Function(v) $"'{v}'"))
-          sql &= $" AND {key} IN ({inList})"
-        End If
-
-      Next
-    End If
-
-    sql &= "ORDER BY trn_jisseki.DenNO,trn_jisseki.GyoNo "
-
-    Return sql
-  End Function
-  'Private Overloads Function SqlGetPrintData(Optional ByRef prmWhereList As Dictionary(Of String, String) = Nothing) As String
-  '  Dim sql As String = String.Empty
-  '  Dim ReportType As String = ReadSettingIniFile("REPORT_TYPE", "VALUE")
-
-  '  sql &= " Select	trn_jisseki.NohinDay "
-  '  sql &= "	,	Case When trn_jisseki.DenNO2 Is NULL Then trn_jisseki.DenNO Else trn_jisseki.DenNO2 + '*' END AS DenNo "
-  '  sql &= "	,	RIGHT('00' + CAST(ISNULL(trn_jisseki.GyoNo2,trn_jisseki.GyoNo)AS VARCHAR(2)), 2)  GyoNo "
-  '  sql &= "	,	trn_jisseki.TokuiCD "
-  '  sql &= "	,	trn_jisseki.TokuiNm "
-  '  sql &= "	,	trn_jisseki.ShohinCD "
-  '  sql &= "	,	trn_jisseki.ShohinNM "
-  '  sql &= "	,	CASE WHEN "
-  '  sql &= "		trn_jisseki.ShohinCD >= 100 "
-  '  sql &= "		then '' "
-  '  sql &= "		else trn_jisseki.Iro  "
-  '  sql &= "		end IRISU "
-  '  'sql &= "	,	CASE WHEN "
-  '  'sql &= "		trn_jisseki.ShohinCD >= 100 "
-  '  'sql &= "		then '' "
-  '  'sql &= "		else trn_jisseki.Suryo "
-  '  'sql &= "		end Suryo "
-  '  sql &= "	, trn_jisseki.Suryo "
-  '  sql &= "	,	CASE WHEN "
-  '  sql &= "		trn_jisseki.ShohinCD >= 100 "
-  '  sql &= "		then '0' "
-  '  sql &= "		else trn_jisseki.Tanka "
-  '  sql &= "		end Tanka "
-  '  sql &= "	,	trn_jisseki.UriageKin "
-  '  sql &= "	,	'8%' Zeiritsu "
-  '  sql &= "	,	CASE WHEN "
-  '  sql &= "		trn_jisseki.ShohinCD >= 100 "
-  '  sql &= "		then '' "
-  '  sql &= "		else trn_jisseki.Biko "
-  '  sql &= "		end Biko "
-  '  sql &= "	,	trn_jisseki.TyokuCD "
-  '  sql &= "	,	trn_jisseki.TyokuNM "
-  '  sql &= "	,	0 AS SortNumber "
-  '  sql &= " FROM trn_jisseki "
-  '  sql &= " LEFT JOIN MST_TOKUISAKI_SHOHIN "
-  '  sql &= " ON MST_TOKUISAKI_SHOHIN.TokuiCD = trn_jisseki.TokuiCD "
-  '  sql &= " AND MST_TOKUISAKI_SHOHIN.ShohinCD  = trn_jisseki.ShohinCD "
-  '  sql &= " LEFT JOIN MST_TOKUISAKI_SHOHIN TOKUISAKI0 "
-  '  sql &= " ON TOKUISAKI0.TokuiCD = 0 "
-  '  sql &= " AND TOKUISAKI0.ShohinCD  =  trn_jisseki.ShohinCD "
-  '  sql &= " LEFT JOIN M_TOKUISAKI_PRINT_CTRL "
-  '  sql &= " ON M_TOKUISAKI_PRINT_CTRL.TOKUISAKI_CD = trn_jisseki.TokuiCD "
-  '  sql &= " WHERE 1=1 "
-  '  For Each strValue As KeyValuePair(Of String, String) In prmWhereList
-  '    sql &= " AND " & strValue.Key & " " & strValue.Value
-  '  Next
-  '  sql &= " ORDER BY trn_jisseki.DenNO,trn_jisseki.GyoNo "
-
-  '  Return sql
-  'End Function
-
-  'Private Overloads Function SqlGetPrintData(Optional ByRef prmWhereList As Dictionary(Of String, List(Of String)) = Nothing) As String
-  '  Dim sql As String = String.Empty
-  '  Dim ReportType As String = ReadSettingIniFile("REPORT_TYPE", "VALUE")
-
-  '  sql &= "SELECT	trn_jisseki.NohinDay "
-  '  sql &= "	,	trn_jisseki.DenNO2 + '*' DenNo "
-  '  sql &= "	,	RIGHT('00' + CAST(trn_jisseki.GyoNo2 AS VARCHAR(2)), 2) GyoNo "
-  '  sql &= "	,	trn_jisseki.TokuiCD "
-  '  sql &= "	,	trn_jisseki.TokuiNm "
-  '  sql &= "	,	trn_jisseki.ShohinCD "
-  '  sql &= "	,	trn_jisseki.ShohinNM "
-  '  sql &= "	,	CASE WHEN "
-  '  sql &= "		trn_jisseki.ShohinCD >= 100 "
-  '  sql &= "		then '' "
-  '  sql &= "		else trn_jisseki.Iro  "
-  '  sql &= "		end IRISU "
-  '  'sql &= "	,	CASE WHEN "
-  '  'sql &= "		trn_jisseki.ShohinCD >= 100 "
-  '  'sql &= "		then '' "
-  '  'sql &= "		else trn_jisseki.Suryo "
-  '  'sql &= "		end Suryo "
-  '  sql &= "	, trn_jisseki.Suryo "
-  '  sql &= "	,	CASE WHEN "
-  '  sql &= "		trn_jisseki.ShohinCD >= 100 "
-  '  sql &= "		then '0' "
-  '  sql &= "		else trn_jisseki.Tanka "
-  '  sql &= "		end Tanka "
-  '  sql &= "	,	trn_jisseki.UriageKin "
-  '  sql &= "	,	'8%' Zeiritsu "
-  '  sql &= "	,	CASE WHEN "
-  '  sql &= "		trn_jisseki.ShohinCD >= 100 "
-  '  sql &= "		then '' "
-  '  sql &= "		else trn_jisseki.Biko "
-  '  sql &= "		end Biko "
-  '  sql &= "	,	trn_jisseki.TyokuCD "
-  '  sql &= "	,	trn_jisseki.TyokuNM "
-  '  sql &= "	,	0 AS SortNumber "
-  '  sql &= "FROM trn_jisseki "
-  '  sql &= "LEFT JOIN MST_TOKUISAKI_SHOHIN "
-  '  sql &= "ON MST_TOKUISAKI_SHOHIN.TokuiCD = trn_jisseki.TokuiCD "
-  '  sql &= "AND MST_TOKUISAKI_SHOHIN.ShohinCD  = trn_jisseki.ShohinCD "
-  '  sql &= "LEFT JOIN MST_TOKUISAKI_SHOHIN TOKUISAKI0 "
-  '  sql &= "ON TOKUISAKI0.TokuiCD = 0 "
-  '  sql &= "AND TOKUISAKI0.ShohinCD  =  trn_jisseki.ShohinCD "
-  '  sql &= "WHERE 1=1 "
-  '  If prmWhereList IsNot Nothing Then
-  '    For Each tmpValue As KeyValuePair(Of String, List(Of String)) In prmWhereList
-
-  '      Dim key As String = tmpValue.Key
-  '      Dim vals As List(Of String) = tmpValue.Value
-
-  '      If vals.Count = 1 Then
-  '        sql &= $" AND {key} = '{vals(0)}'"
-  '      Else
-  '        Dim inList = String.Join(",", vals.Select(Function(v) $"'{v}'"))
-  '        sql &= $" AND {key} IN ({inList})"
-  '      End If
-
-  '    Next
-  '  End If
-
-  '  sql &= "ORDER BY trn_jisseki.DenNO,trn_jisseki.GyoNo "
-
-  '  Return sql
-  'End Function
-
   ''' <summary>
   ''' 量目表テーブル追加SQL文作成
   ''' </summary>
@@ -921,6 +762,23 @@ Public Class ClsPrintingProcess
                                     dt As DateTime) As String
 
     Dim sql As String = String.Empty
+    Dim tmpTaxRate As Decimal = 0
+    Dim tmpTax8Rate As String = String.Empty
+    Dim tmpTax10Rate As String = String.Empty
+    If String.IsNullOrWhiteSpace(tmpRow("ShohinCD").ToString) Then
+    Else
+      tmpTaxRate = GetTaxRate(Date.Parse(DateFormatChange(typDateFormat.FORMAT_DATE, tmpRow("NohinDay").ToString)), Integer.Parse(tmpRow("ShohinCD").ToString))
+    End If
+    Dim tmpTaxString As String = ""
+    If tmpTaxRate = 0 Then
+      tmpTaxString = ""
+    ElseIf tmpTaxRate = 10 Then
+      tmpTaxString = tmpTaxRate & "%"
+      tmpTax10Rate = tmpTaxString
+    Else
+      tmpTaxString = tmpTaxRate & "%※"
+      tmpTax8Rate = tmpTaxString
+    End If
 
 
     sql &= " INSERT INTO " & tblName
@@ -1038,7 +896,7 @@ Public Class ClsPrintingProcess
 
     '税率
     'TODO 本来なら税率を商品マスタから取得して設定する。
-    sql &= "'" & tmpRow("Zeiritsu").ToString & "'" & ","                  '12:                        '12:
+    sql &= "'" & tmpTaxString.ToString & "'" & ","                  '12:                        
 
 
     '備考
@@ -1172,18 +1030,10 @@ Public Class ClsPrintingProcess
     End If
 
     '8%消費税
-    If String.IsNullOrWhiteSpace(tmpRow("TAX_8").ToString) Then
-      sql &= "NULL,"                                          '17:
-    Else
-      sql &= "'" & tmpRow("TAX_8").ToString & "',"                     '17:
-    End If
+    sql &= "'" & tmpTax8Rate.ToString & "',"                     '17:
 
     '10%消費税
-    If String.IsNullOrWhiteSpace(tmpRow("TAX_10").ToString) Then
-      sql &= "NULL"                                          '17:
-    Else
-      sql &= "'" & tmpRow("TAX_10").ToString & "'"                     '17:
-    End If
+    sql &= "'" & tmpTax10Rate.ToString & "'"                     '17:
 
     sql &= " )"
     Console.WriteLine(sql)
@@ -1315,6 +1165,17 @@ Public Class ClsPrintingProcess
     sql &= " ,    ZEIKOMI_TAX = " & prmRow.Item("ZEIKOMI_TAX").ToString
     sql &= " ,    ZEINUKI_TAX = " & prmRow.Item("ZEINUKI_TAX").ToString
     sql &= " ,    TOTAL_TAX = " & prmRow.Item("TOTAL_TAX").ToString
+    sql &= " ,    TAX_8 = IIF("
+    sql &= "       IsNull(DMax('TAX_8', '" & tblName & "', 'DEN_NO = """ & prmRow.Item("DenNO").ToString & """ AND TAX_8 <> """"')), "
+    sql &= "       '', "
+    sql &= "       DMax('TAX_8', '" & tblName & "', 'DEN_NO = """ & prmRow.Item("DenNO").ToString & """ AND TAX_8 <> """"')"
+    sql &= " )"
+
+    sql &= " ,   TAX_10 = IIF("
+    sql &= "       IsNull(DMax('TAX_10', '" & tblName & "', 'DEN_NO = """ & prmRow.Item("DenNO").ToString & """ AND TAX_10 <> """"')), "
+    sql &= "       '', "
+    sql &= "       DMax('TAX_10', '" & tblName & "', 'DEN_NO = """ & prmRow.Item("DenNO").ToString & """ AND TAX_10 <> """"')"
+    sql &= " )"
     sql &= " WHERE 1 = 1 "
     sql &= " AND DEN_NO = '" & prmRow.Item("DenNO").ToString & "'"
     sql &= " AND BARCODE_VALUE <> ''"

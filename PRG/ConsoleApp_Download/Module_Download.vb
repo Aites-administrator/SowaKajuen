@@ -955,7 +955,7 @@ Module Module_Download
       rtnDic("Arari") = Decimal.Parse(tmpKingaku) - Decimal.Parse(tmpGenKingaku)
       rtnDic("ZeiKBN") = tmpSDr("ZeiKBN").ToString
 
-      Dim tmpZeiritsu As Decimal = 8
+      Dim tmpZeiritsu As Decimal = GetTaxRate(Now.ToString("yyyy/MM/dd"), Integer.Parse(tmpShohinCd))
       Dim kingaku As Decimal = CDec(tmpKingaku)
       Dim zeinuki As Decimal = Math.Floor(kingaku * tmpZeiritsu / (100 + tmpZeiritsu))
 

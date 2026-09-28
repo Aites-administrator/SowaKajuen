@@ -734,8 +734,8 @@ Module Module_ItemMasterDownload
     Catch ex As Exception
       Call ComWriteErrLog("Module_ItemMasterDownload",
                               System.Reflection.MethodBase.GetCurrentMethod().Name, ex.Message)
-      InsertTRNLOG(UnitNumber, "", "", ex.Message, SqlServer, "Module_ItemMasterDownload")
       tmpDb.TrnRollBack()
+      InsertTRNLOG(UnitNumber, "", "", ex.Message, SqlServer, "Module_ItemMasterDownload")
       Throw New Exception(ex.Message)
 
     End Try

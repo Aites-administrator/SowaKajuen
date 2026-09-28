@@ -1544,40 +1544,4 @@ Err_Exit:
     Return formattedDate
   End Function
 
-  ''' <summary>
-  ''' 伝票番号の採番を行う
-  ''' </summary>
-  ''' <returns>伝票番号</returns>
-  Public Shared Function AssignNumber(prmDb As clsSqlServer, Optional prmDenNoTable As String = "TBL_DENNO") As Long
-    Dim ret As Long = Long.MinValue
-    Dim tmpDt As New DataTable
-
-    Try
-      With prmDb
-        .GetResult(tmpDt, " SELECT * FROM " & prmDenNoTable)
-
-        If tmpDt.Rows.Count <= 0 Then
-          Throw New Exception("伝票番号管理テーブル不正")
-        Else
-          If Long.Parse(tmpDt.Rows(0)("DENNO")) + 1 > 999999 Then
-            ret = 500000
-          Else
-            ret = Long.Parse(tmpDt.Rows(0)("DENNO")) + 1
-          End If
-        End If
-
-        ' 伝票番号更新
-        .Execute("UPDATE " & prmDenNoTable & " SET DENNO =" & ret.ToString())
-
-      End With
-
-    Catch ex As Exception
-      Call ComWriteErrLog(ex)
-      Throw New Exception("伝票番号の採番に失敗しました。")
-    Finally
-      tmpDt.Dispose()
-    End Try
-
-    Return ret
-  End Function
 End Class

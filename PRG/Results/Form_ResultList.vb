@@ -231,6 +231,7 @@ Public Class Form_ResultList
 
       '全項目いる！！！
       For Each DataRow As DataGridViewRow In DataGridView1.Rows
+        Dim tmpTaxRate As Decimal = GetTaxRate(Date.Parse(Me.TxtNohinDay.Text), Integer.Parse(DataRow.Cells("商品コード").Value))
         SqlServer.GetResult(tmpTokuiDt, SqlGetTKCode(Me.CmbMstCustomer1.Text))
         SqlServer.GetResult(tmpShohinDt, SqlGetShohinCode(DataRow.Cells("商品コード").Value))
         '伝票番号、GyoNo採番
@@ -304,13 +305,12 @@ Public Class Form_ResultList
         InsertData("GenkaGaku") = "0"
         InsertData("Arari") = "0"
         '内税外税計算
-        'TODO 必須！！！！！税率はを判断させるべき
         If tmpShohinDt.Rows(0).Item("ZeikomiKBN").ToString() = 0 Then
-          InsertData("Sotozei") = CalcTaxOnly(Decimal.Parse(DataRow.Cells("金額").Value), Integer.Parse(tmpShohinDt.Rows(0).Item("ZeikomiKBN").ToString), Decimal.Parse("8"))
+          InsertData("Sotozei") = CalcTaxOnly(Decimal.Parse(DataRow.Cells("金額").Value), Integer.Parse(tmpShohinDt.Rows(0).Item("ZeikomiKBN").ToString), tmpTaxRate)
           InsertData("Utizei") = ""
         Else
           InsertData("Sotozei") = ""
-          InsertData("Utizei") = CalcTaxOnly(Decimal.Parse(DataRow.Cells("金額").Value), Integer.Parse(tmpShohinDt.Rows(0).Item("ZeikomiKBN").ToString), Decimal.Parse("8"))
+          InsertData("Utizei") = CalcTaxOnly(Decimal.Parse(DataRow.Cells("金額").Value), Integer.Parse(tmpShohinDt.Rows(0).Item("ZeikomiKBN").ToString), tmpTaxRate)
         End If
         InsertData("ZeiKBN") = tmpShohinDt.Rows(0).Item("ZeiKBN").ToString
         InsertData("ZeikomiKBN") = tmpShohinDt.Rows(0).Item("ZeikomiKBN").ToString

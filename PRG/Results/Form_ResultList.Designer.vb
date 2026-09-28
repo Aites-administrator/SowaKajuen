@@ -1,28 +1,28 @@
 ﻿Imports T.R.ZCommonCtrl
 <Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class Form_ResultList
-    Inherits FormBase
+  Inherits FormBase
 
-    'フォームがコンポーネントの一覧をクリーンアップするために dispose をオーバーライドします。
-    <System.Diagnostics.DebuggerNonUserCode()>
-    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
-        Try
-            If disposing AndAlso components IsNot Nothing Then
-                components.Dispose()
-            End If
-        Finally
-            MyBase.Dispose(disposing)
-        End Try
-    End Sub
+  'フォームがコンポーネントの一覧をクリーンアップするために dispose をオーバーライドします。
+  <System.Diagnostics.DebuggerNonUserCode()>
+  Protected Overrides Sub Dispose(ByVal disposing As Boolean)
+    Try
+      If disposing AndAlso components IsNot Nothing Then
+        components.Dispose()
+      End If
+    Finally
+      MyBase.Dispose(disposing)
+    End Try
+  End Sub
 
-    'Windows フォーム デザイナーで必要です。
-    Private components As System.ComponentModel.IContainer
+  'Windows フォーム デザイナーで必要です。
+  Private components As System.ComponentModel.IContainer
 
-    'メモ: 以下のプロシージャは Windows フォーム デザイナーで必要です。
-    'Windows フォーム デザイナーを使用して変更できます。  
-    'コード エディターを使って変更しないでください。
-    <System.Diagnostics.DebuggerStepThrough()>
-    Private Sub InitializeComponent()
+  'メモ: 以下のプロシージャは Windows フォーム デザイナーで必要です。
+  'Windows フォーム デザイナーを使用して変更できます。  
+  'コード エディターを使って変更しないでください。
+  <System.Diagnostics.DebuggerStepThrough()>
+  Private Sub InitializeComponent()
     Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form_ResultList))
     Me.CreateButton = New System.Windows.Forms.Button()
     Me.TxtNohinDay = New System.Windows.Forms.TextBox()
@@ -794,60 +794,60 @@ Partial Class Form_ResultList
   End Sub
 
   Friend WithEvents CreateButton As Button
-    Friend WithEvents TxtNohinDay As TextBox
-    Friend WithEvents Label1 As Label
-    Friend WithEvents ScaleLabel As Label
-    Friend WithEvents PeriodLabel As Label
-    Friend WithEvents CloseButton As Button
-    Friend WithEvents DataGridView1 As DataGridView
-    Friend WithEvents Label2 As Label
-    Friend WithEvents Label6 As Label
-    Friend WithEvents TxtNohinDay2 As TextBox
-    Friend WithEvents Label7 As Label
-    Friend WithEvents TxtSeikyuDay As TextBox
-    Friend WithEvents Label8 As Label
-    Friend WithEvents TxtDenNo As TextBox
-    Friend WithEvents Label9 As Label
-    Friend WithEvents Label10 As Label
-    Friend WithEvents TxtTokuName As TextBox
-    Friend WithEvents TxtTokuiTel As TextBox
-    Friend WithEvents Label3 As Label
-    Friend WithEvents TxtTyokuTel As TextBox
-    Friend WithEvents Label4 As Label
-    Friend WithEvents TxtChokuName As TextBox
-    Friend WithEvents Label5 As Label
-    Friend WithEvents TxtMeisaiSu As TextBox
-    Friend WithEvents Label11 As Label
-    Friend WithEvents TxtGoukeiKin As TextBox
-    Friend WithEvents Label12 As Label
-    Friend WithEvents TxtBaikaKei As TextBox
-    Friend WithEvents Label13 As Label
-    Friend WithEvents BtnGyoEdit As Button
-    Friend WithEvents CmbMstCustomer1 As T.R.ZCommonCtrl.CmbMstCustomer
-    Friend WithEvents TxtBunruiCd As TextBox
-    Friend WithEvents TxtDenpyoKbn As TextBox
-    Friend WithEvents CmbMstDenku1 As T.R.ZCommonCtrl.CmbMstDenku
-    Friend WithEvents CmbMstUriKbn1 As T.R.ZCommonCtrl.CmbMstUriKbn
-    Friend WithEvents TxtDenkuName As TextBox
-    Friend WithEvents TxtUriKbnName As TextBox
-    Friend WithEvents BtnAddGyo As Button
-    Friend WithEvents TxtTanto As TextBox
-    Friend WithEvents Label14 As Label
-    Friend WithEvents CmbMstTanto1 As T.R.ZCommonCtrl.CmbMstTanto
-    Friend WithEvents TxtBumonCd As TextBox
-    Friend WithEvents Label15 As Label
-    Friend WithEvents TxtTekiyo As TextBox
-    Friend WithEvents Label16 As Label
-    Friend WithEvents TxtHoka1 As TextBox
-    Friend WithEvents Label17 As Label
-    Friend WithEvents TxtHoka2 As TextBox
-    Friend WithEvents Label18 As Label
-    Friend WithEvents CmbMstChoku1 As T.R.ZCommonCtrl.CmbMstChoku
-    Friend WithEvents TitleLabel As Label
-    Friend WithEvents Label19 As Label
-    Friend WithEvents TxtJusho1 As TextBox
-    Friend WithEvents TxtJusho2 As TextBox
-    Friend WithEvents Label20 As Label
-    Friend WithEvents txtZipCd As TextBox
-    Friend WithEvents Label21 As Label
+  Friend WithEvents TxtNohinDay As TextBox
+  Friend WithEvents Label1 As Label
+  Friend WithEvents ScaleLabel As Label
+  Friend WithEvents PeriodLabel As Label
+  Friend WithEvents CloseButton As Button
+  Friend WithEvents DataGridView1 As DataGridView
+  Friend WithEvents Label2 As Label
+  Friend WithEvents Label6 As Label
+  Friend WithEvents TxtNohinDay2 As TextBox
+  Friend WithEvents Label7 As Label
+  Friend WithEvents TxtSeikyuDay As TextBox
+  Friend WithEvents Label8 As Label
+  Friend WithEvents TxtDenNo As TextBox
+  Friend WithEvents Label9 As Label
+  Friend WithEvents Label10 As Label
+  Friend WithEvents TxtTokuName As TextBox
+  Friend WithEvents TxtTokuiTel As TextBox
+  Friend WithEvents Label3 As Label
+  Friend WithEvents TxtTyokuTel As TextBox
+  Friend WithEvents Label4 As Label
+  Friend WithEvents TxtChokuName As TextBox
+  Friend WithEvents Label5 As Label
+  Friend WithEvents TxtMeisaiSu As TextBox
+  Friend WithEvents Label11 As Label
+  Friend WithEvents TxtGoukeiKin As TextBox
+  Friend WithEvents Label12 As Label
+  Friend WithEvents TxtBaikaKei As TextBox
+  Friend WithEvents Label13 As Label
+  Friend WithEvents BtnGyoEdit As Button
+  Friend WithEvents CmbMstCustomer1 As T.R.ZCommonCtrl.CmbMstCustomer
+  Friend WithEvents TxtBunruiCd As TextBox
+  Friend WithEvents TxtDenpyoKbn As TextBox
+  Friend WithEvents CmbMstDenku1 As T.R.ZCommonCtrl.CmbMstDenku
+  Friend WithEvents CmbMstUriKbn1 As T.R.ZCommonCtrl.CmbMstUriKbn
+  Friend WithEvents TxtDenkuName As TextBox
+  Friend WithEvents TxtUriKbnName As TextBox
+  Friend WithEvents BtnAddGyo As Button
+  Friend WithEvents TxtTanto As TextBox
+  Friend WithEvents Label14 As Label
+  Friend WithEvents CmbMstTanto1 As T.R.ZCommonCtrl.CmbMstTanto
+  Friend WithEvents TxtBumonCd As TextBox
+  Friend WithEvents Label15 As Label
+  Friend WithEvents TxtTekiyo As TextBox
+  Friend WithEvents Label16 As Label
+  Friend WithEvents TxtHoka1 As TextBox
+  Friend WithEvents Label17 As Label
+  Friend WithEvents TxtHoka2 As TextBox
+  Friend WithEvents Label18 As Label
+  Friend WithEvents CmbMstChoku1 As T.R.ZCommonCtrl.CmbMstChoku
+  Friend WithEvents TitleLabel As Label
+  Friend WithEvents Label19 As Label
+  Friend WithEvents TxtJusho1 As TextBox
+  Friend WithEvents TxtJusho2 As TextBox
+  Friend WithEvents Label20 As Label
+  Friend WithEvents txtZipCd As TextBox
+  Friend WithEvents Label21 As Label
 End Class

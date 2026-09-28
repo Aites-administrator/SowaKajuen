@@ -1207,17 +1207,41 @@ Err_Exit:
 
     If zeikomiKubun = 1 Then
       '--- 税込 → 税抜（丸めなし）
-      zeinuki = total / (1D + (taxRate / 100D))
+      zeinuki = total / (1 + (taxRate / 100))
 
       '--- 税抜 × 税率 → 税額（丸め）
-      tax = Math.Floor(zeinuki * (taxRate / 100D))
+      tax = Math.Floor(zeinuki * (taxRate / 100))
 
     Else
       '--- 税抜として扱う
       zeinuki = total
 
       '--- 税抜 × 税率 → 税額（丸め）
-      tax = Math.Floor(zeinuki * (taxRate / 100D))
+      tax = Math.Floor(zeinuki * (taxRate / 100))
+    End If
+
+    Return tax
+
+  End Function
+
+  ''' <summary>
+  ''' 消費税計算
+  ''' </summary>
+  ''' <param name="prmDate">日付</param>
+  ''' <param name="prmSuryo">数量(重量)</param>
+  ''' <returns>金額</returns>
+  Public Shared Function GetTaxRate(prmDate As Date, prmItemCd As Integer) As Decimal
+
+    Dim tax As Decimal
+    Dim tmpReducedTaxFromDate As String = ReadSettingIniFile("REDUCED_TAX1%_FROM", "VALUE")
+    Dim tmpReducedTaxToDate As String = ReadSettingIniFile("REDUCED_TAX1%_TO", "VALUE")
+
+    If prmDate >= Date.Parse(tmpReducedTaxFromDate) AndAlso prmDate <= Date.Parse(tmpReducedTaxToDate) Then
+      tax = 1
+    ElseIf prmItemCd >= 100 Then
+      tax = 10
+    Else
+      tax = 8
     End If
 
     Return tax
